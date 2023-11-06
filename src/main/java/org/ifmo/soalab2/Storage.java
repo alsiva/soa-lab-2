@@ -12,7 +12,7 @@ import java.util.List;
 @Named
 @ApplicationScoped
 public class Storage {
-    private Products productList = new Products(List.of(
+    private List<Product> productList = List.of(
             new Product(
                     "Pelmeni",
                     new ProductCoordinates(10, 20),
@@ -29,9 +29,9 @@ public class Storage {
                             new ProductOrganizationPostalAddress("3535")
                     )
             )
-    ));
+    );
 
-    public void addProduct(ProductWithoutDate productWithoutDate) {
+    public Product addProduct(ProductWithoutDate productWithoutDate) {
         Product product = new Product(
                 productWithoutDate.getName(),
                 productWithoutDate.getCoordinates(),
@@ -42,6 +42,7 @@ public class Storage {
                 productWithoutDate.getOrganization()
         );
         productList.add(product);
+        return product;
     }
 
     public Product getProduct(int id) {
@@ -54,7 +55,7 @@ public class Storage {
         return result;
     }
 
-    public Products getProductList() {
+    public List<Product> getProductList() {
         return productList;
     }
 

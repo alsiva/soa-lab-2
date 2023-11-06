@@ -34,6 +34,8 @@ import java.util.Objects;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProductOrganization implements Serializable {
 
+    public ProductOrganization() {}
+
   private Integer orgId;
 
 

@@ -30,6 +30,8 @@ public class ProductCoordinates implements Serializable {
     private Integer x;
     private Integer y;
 
+    public ProductCoordinates() {}
+
     public ProductCoordinates(Integer x, Integer y) {
         this.x = x;
         this.y = y;

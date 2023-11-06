@@ -12,9 +12,6 @@
 
 package org.ifmo.soalab2.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -41,13 +38,10 @@ public class Product implements OneOfProductsItems, Serializable {
     private Date creationDate;
     private Float price;
     private Long manufactureCost;
-
-
-
     private UnitOfMeasure unitOfMeasure;
-
-
     private ProductOrganization organization;
+
+    public Product() {}
 
     public Product(String name, ProductCoordinates coordinates, Date creationDate, Float price, Long manufactureCost, UnitOfMeasure unitOfMeasure, ProductOrganization organization) {
         this.id = ++idCounter;
@@ -106,7 +100,6 @@ public class Product implements OneOfProductsItems, Serializable {
      *
      * @return coordinates
      **/
-
     @Schema(description = "")
     @Valid
     public ProductCoordinates getCoordinates() {

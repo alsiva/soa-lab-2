@@ -33,7 +33,7 @@ public class ProductsApi {
     })
     public Response addProduct(
             @Parameter(in = ParameterIn.DEFAULT, required = true) ProductWithoutDate body
-    ) throws NotFoundException {
+    ) {
         return delegate.addProduct(body);
     }
 

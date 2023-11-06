@@ -8,7 +8,7 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ApiResponseMessage {
 
-    Object details;
+    String details;
 
     public ApiResponseMessage() {
     }
@@ -17,7 +17,7 @@ public class ApiResponseMessage {
         this.details = details;
     }
 
-    public Object getDetails() {
+    public String getDetails() {
         return details;
     }
 

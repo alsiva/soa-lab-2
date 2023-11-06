@@ -30,6 +30,8 @@ public class ProductOrganizationPostalAddress implements Serializable {
 
   private String zipcode;
 
+  public ProductOrganizationPostalAddress() {}
+
   public ProductOrganizationPostalAddress(String zipcode) {
     this.zipcode = zipcode;
   }
