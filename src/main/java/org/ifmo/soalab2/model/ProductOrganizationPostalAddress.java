@@ -18,6 +18,7 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -25,13 +26,12 @@ import java.util.Objects;
  */
 @XmlRootElement(name = "ProductOrganizationPostalAddress")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProductOrganizationPostalAddress   {
+public class ProductOrganizationPostalAddress implements Serializable {
 
-  private String zipcode = null;
+  private String zipcode;
 
-  public ProductOrganizationPostalAddress zipcode(String zipcode) {
+  public ProductOrganizationPostalAddress(String zipcode) {
     this.zipcode = zipcode;
-    return this;
   }
 
   /**

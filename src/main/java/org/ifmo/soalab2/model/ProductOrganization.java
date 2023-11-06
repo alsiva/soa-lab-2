@@ -24,6 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -31,18 +32,18 @@ import java.util.Objects;
  */
 @XmlRootElement(name = "ProductOrganization")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProductOrganization   {
+public class ProductOrganization implements Serializable {
 
-  private Integer orgId = null;
-
-
-  private String name = null;
+  private Integer orgId;
 
 
-  private String fullName = null;
+  private String name;
 
 
-  private Float annualTurnover = null;
+  private String fullName;
+
+
+  private Float annualTurnover;
 
   /**
    * Gets or Sets orgType
@@ -80,17 +81,21 @@ public class ProductOrganization   {
     }
   }
 
-  private OrgTypeEnum orgType = null;
+  private OrgTypeEnum orgType;
 
 
-  private ProductOrganizationPostalAddress postalAddress = null;
+  private ProductOrganizationPostalAddress postalAddress;
 
-  public ProductOrganization orgId(Integer orgId) {
-    this.orgId = orgId;
-    return this;
-  }
+    public ProductOrganization(Integer orgId, String name, String fullName, Float annualTurnover, OrgTypeEnum orgType, ProductOrganizationPostalAddress postalAddress) {
+        this.orgId = orgId;
+        this.name = name;
+        this.fullName = fullName;
+        this.annualTurnover = annualTurnover;
+        this.orgType = orgType;
+        this.postalAddress = postalAddress;
+    }
 
-  /**
+    /**
    * Get orgId
    * minimum: 1
    * @return orgId
