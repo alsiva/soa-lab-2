@@ -47,7 +47,7 @@ public class ProductsApi {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")}
     )
     public Response deleteProductById(
-            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("product_id") Integer productId
+            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("product_id") String productId
     ) throws NotFoundException {
         return delegate.deleteProductById(productId);
     }
@@ -62,7 +62,7 @@ public class ProductsApi {
             @ApiResponse(responseCode = "404", description = "Нет данного ресурса"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
     public Response deleteProductByManufactureCost(
-            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("cost") Long manufactureCost
+            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("cost") String manufactureCost
     ) throws NotFoundException {
         return delegate.deleteProductByManufactureCost(manufactureCost);
     }
@@ -142,7 +142,7 @@ public class ProductsApi {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     public Response getProductById(
-            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("product_id") Integer productId
+            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("product_id") String productId
     ) throws NotFoundException {
         return delegate.getProductById(productId);
     }
@@ -170,7 +170,7 @@ public class ProductsApi {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     public Response getProductsByLessManufacturerAnnualTurnover(
-            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("turnover") Double annualTurnover
+            @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("turnover") String annualTurnover
     ) throws NotFoundException {
         return delegate.getProductsByLessManufacturerAnnualTurnover(annualTurnover);
     }
