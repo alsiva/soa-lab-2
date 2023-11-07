@@ -29,11 +29,13 @@ public class ProductsApiServiceImpl {
     }
     public Response deleteProductById(Integer productId) throws NotFoundException {
         // do some magic!
-        return Response.ok().entity(new ApiResponseMessage("deleteProductById")).build();
+        Product removedProduct = storage.removeProduct(productId);
+        return Response.ok().entity(removedProduct).build();
     }
     public Response deleteProductByManufactureCost(Long manufactureCost) throws NotFoundException {
         // do some magic!
-        return Response.ok().entity(new ApiResponseMessage("deleteProductByManufactureCost")).build();
+        Product removedProduct = storage.removeProduct(manufactureCost);
+        return Response.ok().entity(removedProduct).build();
     }
     public Response getAllProducts(List<String> sort,  List<String> filter,  @Min(0) Integer page,  @Min(1) Integer pagesCount) throws NotFoundException {
         // do some magic!
@@ -42,19 +44,23 @@ public class ProductsApiServiceImpl {
         return Response.ok().entity(products).build();
     }
     public Response getProductById(Integer productId) throws NotFoundException {
+        Product product = storage.getProduct(productId);
         // do some magic!
-        return Response.ok().entity(new ApiResponseMessage("getProductById")).build();
+        return Response.ok().entity(product).build();
     }
     public Response getProductByMaxUnitOfMeasure() throws NotFoundException {
         // do some magic!
-        return Response.ok().entity(new ApiResponseMessage("getProductByMaxUnitOfMeasure")).build();
+        Product productWithMaxUnitOfMeasure = storage.getProductWithMaxUnitOfMaxUnitOfMeasure();
+        return Response.ok().entity(productWithMaxUnitOfMeasure).build();
     }
     public Response getProductsByLessManufacturerAnnualTurnover(Double annualTurnover) throws NotFoundException {
         // do some magic!
-        return Response.ok().entity(new ApiResponseMessage("getProductsByLessManufacturerAnnualTurnover")).build();
+        Products products = new Products(storage.getProductListWithLessAnnualTurnover(annualTurnover));
+        return Response.ok().entity(products).build();
     }
     public Response updateProductById(ProductWithoutDate body, Integer productId) throws NotFoundException {
         // do some magic!
-        return Response.ok().entity(new ApiResponseMessage("updateProductById")).build();
+        Product updatedProduct = storage.updateProductById(body, productId);
+        return Response.ok().entity(updatedProduct).build();
     }
 }

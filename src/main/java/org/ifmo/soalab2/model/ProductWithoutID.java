@@ -16,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import javax.validation.Valid;
@@ -29,6 +31,7 @@ import java.util.Objects;
  * ProductWithoutID
  */
 @XmlRootElement(name = "ProductWithouID")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ProductWithoutID implements Serializable {
 
     private String name;
@@ -48,6 +51,9 @@ public class ProductWithoutID implements Serializable {
         this.manufactureCost = manufactureCost;
         this.unitOfMeasure = unitOfMeasure;
         this.organization = organization;
+    }
+
+    public ProductWithoutID() {
     }
 
     /**

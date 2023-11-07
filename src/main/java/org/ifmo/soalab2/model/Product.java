@@ -54,6 +54,7 @@ public class Product implements OneOfProductsItems, Serializable {
         this.organization = organization;
     }
 
+
     /**
      * Get id
      *

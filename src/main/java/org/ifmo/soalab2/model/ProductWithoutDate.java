@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import javax.validation.Valid;
@@ -29,15 +30,19 @@ import java.util.Objects;
 /**
  * ProductWithoutDate
  */
-@XmlRootElement(name = "ProductWithoutDate")
+@XmlRootElement(name = "Product")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProductWithoutDate implements Serializable {
 
+    @XmlElement(name = "name")
     private String name;
+
+    @XmlElement(name = "coordinates")
     private ProductCoordinates coordinates;
     private Float price;
     private Long manufactureCost;
     private UnitOfMeasure unitOfMeasure;
+    @XmlElement(name = "organization")
     private ProductOrganization organization;
 
 
@@ -48,6 +53,9 @@ public class ProductWithoutDate implements Serializable {
         this.manufactureCost = manufactureCost;
         this.unitOfMeasure = unitOfMeasure;
         this.organization = organization;
+    }
+
+    public ProductWithoutDate() {
     }
 
     /**
