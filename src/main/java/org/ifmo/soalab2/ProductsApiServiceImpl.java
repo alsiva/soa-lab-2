@@ -11,7 +11,10 @@ import org.ifmo.soalab2.model.Product;
 import org.ifmo.soalab2.model.ProductWithoutDate;
 import org.ifmo.soalab2.model.Products;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 
 @Named
@@ -20,13 +23,34 @@ public class ProductsApiServiceImpl {
 
 
     private enum SortingParams {
-        product_id, name, coordinate_x, coordinate_y,
-        creationDate, price, manufactureCost, unitOfMeasure, org_id, org_name,
-        org_fullName, org_annualTurnover, org_type, postalAddress_zipcode,
-        desc_product_id, desc_name, desc_coordinate_x, desc_coordinate_y,
-        desc_creationDate, desc_price, desc_manufactureCost,
-        desc_unitOfMeasure, desc_org_id, desc_org_name, desc_org_fullName,
-        desc_org_annualTurnover, desc_org_type, desc_postalAddress_zipcode;
+        product_id,
+        name,
+        coordinate_x,
+        coordinate_y,
+        creationDate,
+        price,
+        manufactureCost,
+        unitOfMeasure,
+        org_id,
+        org_name,
+        org_fullName,
+        org_annualTurnover,
+        org_type,
+        postalAddress_zipcode,
+        desc_product_id,
+        desc_name,
+        desc_coordinate_x,
+        desc_coordinate_y,
+        desc_creationDate,
+        desc_price,
+        desc_manufactureCost,
+        desc_unitOfMeasure,
+        desc_org_id,
+        desc_org_name,
+        desc_org_fullName,
+        desc_org_annualTurnover,
+        desc_org_type,
+        desc_postalAddress_zipcode;
 
         public static boolean containsString(String string) {
             for (SortingParams sortingParam : values()) {
@@ -37,9 +61,99 @@ public class ProductsApiServiceImpl {
             return false;
         }
 
+        public static List<SortingParams> stringToEnum(List<String> stringList) {
+            List<SortingParams> answer = new ArrayList<>();
+            for (SortingParams sortingParam : values()) {
+                for (String stringSortElement : stringList) {
+                    if (sortingParam.name().equalsIgnoreCase(stringSortElement)) {
+                        answer.add(sortingParam);
+                    }
+                }
+            }
+            return answer;
+        }
     }
 
-    ;
+    private class ProductCompositeComparator implements Comparator<Product> {
+        private final List<SortingParams> sortingParams;
+
+        public ProductCompositeComparator(List<SortingParams> sortingParams) {
+            this.sortingParams = sortingParams;
+        }
+
+        private int getComparable(SortingParams sortingParam, Product a, Product b) {
+            switch (sortingParam) {
+                case product_id:
+                    return a.getId().compareTo(b.getId());
+                case name:
+                    return a.getName().compareTo(b.getName());
+                case coordinate_x:
+                    return a.getCoordinates().getX().compareTo(b.getCoordinates().getX());
+                case coordinate_y:
+                    return a.getCoordinates().getY().compareTo(b.getCoordinates().getY());
+                case creationDate:
+                    return a.getCreationDate().compareTo(b.getCreationDate());
+                case price:
+                    return a.getPrice().compareTo(b.getPrice());
+                case manufactureCost:
+                    return a.getManufactureCost().compareTo(b.getManufactureCost());
+                case unitOfMeasure:
+                    return a.getUnitOfMeasure().compareTo(b.getUnitOfMeasure());
+                case org_id:
+                    return a.getOrganization().getOrgId().compareTo(b.getOrganization().getOrgId());
+                case org_name:
+                    return a.getOrganization().getName().compareTo(b.getOrganization().getName());
+                case org_fullName:
+                    return a.getOrganization().getFullName().compareTo(b.getOrganization().getFullName());
+                case org_annualTurnover:
+                    return a.getOrganization().getAnnualTurnover().compareTo(b.getOrganization().getAnnualTurnover());
+                case org_type:
+                    return a.getOrganization().getOrgType().compareTo(b.getOrganization().getOrgType());
+                case postalAddress_zipcode:
+                    return a.getOrganization().getPostalAddress().getZipcode().compareTo(b.getOrganization().getPostalAddress().getZipcode());
+                case desc_product_id:
+                    return -a.getId().compareTo(b.getId());
+                case desc_name:
+                    return -a.getName().compareTo(b.getName());
+                case desc_coordinate_x:
+                    return -a.getCoordinates().getX().compareTo(b.getCoordinates().getX());
+                case desc_coordinate_y:
+                    return -a.getCoordinates().getY().compareTo(b.getCoordinates().getY());
+                case desc_creationDate:
+                    return -a.getCreationDate().compareTo(b.getCreationDate());
+                case desc_price:
+                    return -a.getPrice().compareTo(b.getPrice());
+                case desc_manufactureCost:
+                    return -a.getManufactureCost().compareTo(b.getManufactureCost());
+                case desc_unitOfMeasure:
+                    return -a.getUnitOfMeasure().compareTo(b.getUnitOfMeasure());
+                case desc_org_id:
+                    return -a.getOrganization().getOrgId().compareTo(b.getOrganization().getOrgId());
+                case desc_org_name:
+                    return -a.getOrganization().getName().compareTo(b.getOrganization().getName());
+                case desc_org_fullName:
+                    return -a.getOrganization().getFullName().compareTo(b.getOrganization().getFullName());
+                case desc_org_annualTurnover:
+                    return -a.getOrganization().getAnnualTurnover().compareTo(b.getOrganization().getAnnualTurnover());
+                case desc_org_type:
+                    return -a.getOrganization().getOrgType().compareTo(b.getOrganization().getOrgType());
+                case desc_postalAddress_zipcode:
+                    return -a.getOrganization().getPostalAddress().getZipcode().compareTo(b.getOrganization().getPostalAddress().getZipcode());
+            }
+            return 0;
+        }
+
+        @Override
+        public int compare(Product o1, Product o2) {
+            for (SortingParams sortingParam : sortingParams) {
+                int comparison = getComparable(sortingParam, o1, o2);
+                if (comparison != 0) {
+                    return comparison;
+                }
+            }
+            return 0;
+        }
+    }
 
     @Inject
     Storage storage;
@@ -134,7 +248,12 @@ public class ProductsApiServiceImpl {
             }
         }
 
+
         List<Product> productList = storage.getProductList();
+        List<SortingParams> sortingParams = SortingParams.stringToEnum(sort);
+        ProductCompositeComparator productCompositeComparator = new ProductCompositeComparator(sortingParams);
+        productList.sort(productCompositeComparator);
+
         if (productList.isEmpty()) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
         }
