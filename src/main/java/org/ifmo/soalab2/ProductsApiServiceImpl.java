@@ -11,16 +11,18 @@ import org.ifmo.soalab2.model.Product;
 import org.ifmo.soalab2.model.ProductWithoutDate;
 import org.ifmo.soalab2.model.Products;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
+import java.util.regex.Pattern;
 
 
 @Named
 @ApplicationScoped
 public class ProductsApiServiceImpl {
-
 
     private enum SortingParams {
         product_id,
@@ -72,6 +74,164 @@ public class ProductsApiServiceImpl {
             }
             return answer;
         }
+    }
+
+    private List<Product> filteredList(List<Product> productList, List<String> filter) {
+        List<Product> result = new ArrayList<>();
+
+        for (String filterElement : filter) {
+            String field = Pattern.compile("^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)").matcher(filterElement).group(1);
+            String comp = Pattern.compile("(==|!=|>|<|>=|<=)").matcher(filterElement).group(1);
+            String value = Pattern.compile("(.+)").matcher(filterElement).group(1);
+
+            switch (field) {
+                case "id":
+                    switch (comp) {
+                        case "==":
+                            for (Product product : productList) {
+                                if (product.getId() == Integer.parseInt(value)) result.add(product);
+                            }
+                        case "!=":
+                            for (Product product : productList) {
+                                if (product.getId() != Integer.parseInt(value)) result.add(product);
+                            }
+                        case ">":
+                            for (Product product : productList) {
+                                if (product.getId() > Integer.parseInt(value)) result.add(product);
+                            }
+                        case "<":
+                            for (Product product : productList) {
+                                if (product.getId() < Integer.parseInt(value)) result.add(product);
+                            }
+                        case ">=":
+                            for (Product product : productList) {
+                                if (product.getId() >= Integer.parseInt(value)) result.add(product);
+                            }
+                        case "<=":
+                            for (Product product : productList) {
+                                if (product.getId() <= Integer.parseInt(value)) result.add(product);
+                            }
+                    }
+
+                case "name":
+                    switch (comp) {
+                        case "==":
+                            for (Product product : productList) {
+                                if (product.getName().equals(value)) result.add(product);
+                            }
+                        case "!=":
+                            for (Product product : productList) {
+                                if (!product.getName().equals(value)) result.add(product);
+                            }
+                        case ">":
+                            for (Product product : productList) {
+                                if (product.getName().compareTo(value) > 0) result.add(product);
+                            }
+                        case "<":
+                            for (Product product : productList) {
+                                if (product.getName().compareTo(value) < 0) result.add(product);
+                            }
+                        case ">=":
+                            for (Product product : productList) {
+                                if (product.getName().compareTo(value) >= 0) result.add(product);
+                            }
+                        case "<=":
+                            for (Product product : productList) {
+                                if (product.getName().compareTo(value) <= 0) result.add(product);
+                            }
+                    }
+                case "coordinates\\.x":
+                    switch (comp) {
+                        case "==":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getX() == Integer.parseInt(value)) result.add(product);
+                            }
+                        case "!=":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getX() != Integer.parseInt(value)) result.add(product);
+                            }
+                        case ">":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getX() > Integer.parseInt(value)) result.add(product);
+                            }
+                        case "<":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getX() < Integer.parseInt(value)) result.add(product);
+                            }
+                        case ">=":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getX() >= Integer.parseInt(value)) result.add(product);
+                            }
+                        case "<=":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getX() <= Integer.parseInt(value)) result.add(product);
+                            }
+                    }
+
+                case "coordinates\\.y":
+                    switch (comp) {
+                        case "==":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getY() == Integer.parseInt(value)) result.add(product);
+                            }
+                        case "!=":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getY() != Integer.parseInt(value)) result.add(product);
+                            }
+                        case ">":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getY() > Integer.parseInt(value)) result.add(product);
+                            }
+                        case "<":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getY() < Integer.parseInt(value)) result.add(product);
+                            }
+                        case ">=":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getY() >= Integer.parseInt(value)) result.add(product);
+                            }
+                        case "<=":
+                            for (Product product : productList) {
+                                if (product.getCoordinates().getY() <= Integer.parseInt(value)) result.add(product);
+                            }
+                    }
+                case "creationDate":
+                    switch (comp) {
+
+                        case "==":
+                            for (Product product : productList) {
+                                Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                if (product.getCreationDate().equals(date)) result.add(product);
+                            }
+                        case "!=":
+                            for (Product product : productList) {
+                                Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                if (!product.getCreationDate().equals(date)) result.add(product);
+                            }
+                        case ">":
+                            for (Product product : productList) {
+                                Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                if (product.getCreationDate().after(date)) result.add(product);
+                            }
+                        case "<":
+                            for (Product product : productList) {
+                                Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                if (product.getCreationDate().before(date)) result.add(product);
+                            }
+                        case ">=":
+                            for (Product product : productList) {
+                                Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                if (product.getCreationDate().equals(date) || product.getCreationDate().after(date)) result.add(product);
+                            }
+                        case "<=":
+                            for (Product product : productList) {
+                                Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                if (product.getCreationDate().before(date) || product.getCreationDate().equals(date)) result.add(product);
+                            }
+                    }
+            }
+        }
+        return result;
     }
 
     private class ProductCompositeComparator implements Comparator<Product> {
@@ -153,6 +313,7 @@ public class ProductsApiServiceImpl {
             }
             return 0;
         }
+
     }
 
     @Inject
@@ -225,7 +386,39 @@ public class ProductsApiServiceImpl {
         return Response.ok().entity(removedProduct).build();
     }
 
+    private boolean checkCorrectFilter(String filterElement, String value) {
+        switch (filterElement) {
+            case "id":
+                try {
+                    Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            case "coordinates\\.x":
+                try {
+                    Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            case "coordinates\\.y":
+                try {
+                    Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            case "creationDate":
+                try {
+                    Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                } catch (NullPointerException | IllegalArgumentException e) {
+                    return false;
+                }
+        }
+        return true;
+    }
+
     public Response getAllProducts(List<String> sort, List<String> filter, @Min(0) Integer page, @Min(1) Integer pagesCount) throws NotFoundException {
+
+        final String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)(==|!=|>|<|>=|<=)(.+)";
         // do some magic!
         if (sort != null) {
             for (String sort_element : sort) {
@@ -234,17 +427,24 @@ public class ProductsApiServiceImpl {
                             "фильтрации в соответствии с требованиями, которые я вам\n" +
                             "указал")).build();
                 }
+
             }
         }
 
         if (filter != null) {
             for (String filter_element : filter) {
-                if (!filter_element.matches("^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)(==|!=|>|<|>=|<=)(\\d+)")) {
+                if (!filter_element.matches(filterRegex)) {
                     return Response.status(400).entity(new ApiResponseMessage("Вы должны были указать параметры сортировки и\n" +
                             "фильтрации в соответствии с требованиями, которые я вам\n" +
                             "указал")).build();
                 }
-                ;
+                String field = Pattern.compile("^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)").matcher(filter_element).group(1);
+                String value = Pattern.compile("(.+)").matcher(filter_element).group(1);
+                if (!checkCorrectFilter(field, value)); {
+                    return Response.status(400).entity(new ApiResponseMessage("Вы должны были указать параметры сортировки и\n" +
+                            "фильтрации в соответствии с требованиями, которые я вам\n" +
+                            "указал")).build();
+                }
             }
         }
 
