@@ -1,4 +1,4 @@
-package org.ifmo.soalab2;
+package org.ifmo.soalab2.firstService;
 
 
 import javax.validation.constraints.Min;
@@ -7,16 +7,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.ws.rs.core.Response;
+import org.ifmo.soalab2.ApiResponseMessage;
+import org.ifmo.soalab2.NotFoundException;
+import org.ifmo.soalab2.Storage;
 import org.ifmo.soalab2.model.Product;
 import org.ifmo.soalab2.model.ProductWithoutDate;
 import org.ifmo.soalab2.model.Products;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -76,161 +77,224 @@ public class ProductsApiServiceImpl {
         }
     }
 
+    private final String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)(==|!=|>|<|>=|<=)(.+)";
+
     private List<Product> filteredList(List<Product> productList, List<String> filter) {
-        List<Product> result = new ArrayList<>();
+        List<Product> result = storage.getProductList();
+        Set<Product> toBeRemoved = new HashSet<>();
+
+        if (filter == null) {
+            return productList;
+        }
 
         for (String filterElement : filter) {
-            String field = Pattern.compile("^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)").matcher(filterElement).group(1);
-            String comp = Pattern.compile("(==|!=|>|<|>=|<=)").matcher(filterElement).group(1);
-            String value = Pattern.compile("(.+)").matcher(filterElement).group(1);
+            Pattern expressionPattern = Pattern.compile(filterRegex);
+            Matcher expressionMatcher = expressionPattern.matcher(filterElement);
+
+            /*
+                Pattern expressionPattern = Pattern.compile(filterRegex);
+                Matcher expressionMatcher = expressionPattern.matcher(filter_element);
+
+                String field = expressionMatcher.find() ? expressionMatcher.group(1) : null;
+                String value = expressionMatcher.find() ? expressionMatcher.group(3) : null;
+            */
+
+            String field;
+            String comp;
+            String value;
+            if (expressionMatcher.find()) {
+                field = expressionMatcher.group(1);
+                comp = expressionMatcher.group(2);
+                value = expressionMatcher.group(3);
+            } else {
+                throw new NullPointerException("Ты как здесь null pointer схватил");
+            }
 
             switch (field) {
                 case "id":
                     switch (comp) {
                         case "==":
                             for (Product product : productList) {
-                                if (product.getId() == Integer.parseInt(value)) result.add(product);
+                                if (!(product.getId() == Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "!=":
                             for (Product product : productList) {
-                                if (product.getId() != Integer.parseInt(value)) result.add(product);
+                                if (product.getId() == Integer.parseInt(value)) toBeRemoved.add(product);
                             }
+                            break;
                         case ">":
                             for (Product product : productList) {
-                                if (product.getId() > Integer.parseInt(value)) result.add(product);
+                                if (!(product.getId() > Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<":
                             for (Product product : productList) {
-                                if (product.getId() < Integer.parseInt(value)) result.add(product);
+                                if (!(product.getId() < Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case ">=":
                             for (Product product : productList) {
-                                if (product.getId() >= Integer.parseInt(value)) result.add(product);
+                                if (!(product.getId() >= Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<=":
                             for (Product product : productList) {
-                                if (product.getId() <= Integer.parseInt(value)) result.add(product);
+                                if (!(product.getId() <= Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                     }
+                    break;
 
                 case "name":
                     switch (comp) {
                         case "==":
                             for (Product product : productList) {
-                                if (product.getName().equals(value)) result.add(product);
+                                if (!(product.getName().equals(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "!=":
                             for (Product product : productList) {
-                                if (!product.getName().equals(value)) result.add(product);
+                                if (product.getName().equals(value)) toBeRemoved.add(product);
                             }
+                            break;
                         case ">":
                             for (Product product : productList) {
-                                if (product.getName().compareTo(value) > 0) result.add(product);
+                                if (!(product.getName().compareTo(value) > 0)) toBeRemoved.add(product);
                             }
+                            break;
                         case "<":
                             for (Product product : productList) {
-                                if (product.getName().compareTo(value) < 0) result.add(product);
+                                if (!(product.getName().compareTo(value) < 0)) toBeRemoved.add(product);
                             }
+                            break;
                         case ">=":
                             for (Product product : productList) {
-                                if (product.getName().compareTo(value) >= 0) result.add(product);
+                                if (!(product.getName().compareTo(value) >= 0)) toBeRemoved.add(product);
                             }
+                            break;
                         case "<=":
                             for (Product product : productList) {
-                                if (product.getName().compareTo(value) <= 0) result.add(product);
+                                if (!(product.getName().compareTo(value) <= 0)) toBeRemoved.add(product);
                             }
+                            break;
                     }
+                    break;
+
                 case "coordinates\\.x":
                     switch (comp) {
                         case "==":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getX() == Integer.parseInt(value)) result.add(product);
+                                if (product.getCoordinates().getX() != Integer.parseInt(value)) toBeRemoved.add(product);
                             }
+                            break;
                         case "!=":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getX() != Integer.parseInt(value)) result.add(product);
+                                if (product.getCoordinates().getX() == Integer.parseInt(value)) toBeRemoved.add(product);
                             }
+                            break;
                         case ">":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getX() > Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getX() > Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getX() < Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getX() < Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case ">=":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getX() >= Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getX() >= Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<=":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getX() <= Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getX() <= Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                     }
+                    break;
 
                 case "coordinates\\.y":
                     switch (comp) {
                         case "==":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getY() == Integer.parseInt(value)) result.add(product);
+                                if (product.getCoordinates().getY() != Integer.parseInt(value)) toBeRemoved.add(product);
                             }
+                            break;
                         case "!=":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getY() != Integer.parseInt(value)) result.add(product);
+                                if (product.getCoordinates().getY() == Integer.parseInt(value)) toBeRemoved.add(product);
                             }
+                            break;
                         case ">":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getY() > Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getY() > Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getY() < Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getY() < Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case ">=":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getY() >= Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getY() >= Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<=":
                             for (Product product : productList) {
-                                if (product.getCoordinates().getY() <= Integer.parseInt(value)) result.add(product);
+                                if (!(product.getCoordinates().getY() <= Integer.parseInt(value))) toBeRemoved.add(product);
                             }
+                            break;
                     }
+                    break;
+
                 case "creationDate":
                     switch (comp) {
 
                         case "==":
                             for (Product product : productList) {
                                 Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                if (product.getCreationDate().equals(date)) result.add(product);
+                                if (!(product.getCreationDate().equals(date))) toBeRemoved.add(product);
                             }
+                            break;
                         case "!=":
                             for (Product product : productList) {
                                 Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                if (!product.getCreationDate().equals(date)) result.add(product);
+                                if (product.getCreationDate().equals(date)) toBeRemoved.add(product);
                             }
+                            break;
                         case ">":
                             for (Product product : productList) {
                                 Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                if (product.getCreationDate().after(date)) result.add(product);
+                                if (!(product.getCreationDate().after(date))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<":
                             for (Product product : productList) {
                                 Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                if (product.getCreationDate().before(date)) result.add(product);
+                                if (!(product.getCreationDate().before(date))) toBeRemoved.add(product);
                             }
+                            break;
                         case ">=":
                             for (Product product : productList) {
                                 Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                if (product.getCreationDate().equals(date) || product.getCreationDate().after(date)) result.add(product);
+                                if (!(product.getCreationDate().equals(date) || product.getCreationDate().after(date))) toBeRemoved.add(product);
                             }
+                            break;
                         case "<=":
                             for (Product product : productList) {
                                 Date date = Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                                if (product.getCreationDate().before(date) || product.getCreationDate().equals(date)) result.add(product);
+                                if (!(product.getCreationDate().before(date) || product.getCreationDate().equals(date))) toBeRemoved.add(product);
                             }
+                            break;
                     }
+                    break;
             }
         }
+        result.removeAll(toBeRemoved);
         return result;
     }
 
@@ -389,26 +453,18 @@ public class ProductsApiServiceImpl {
     private boolean checkCorrectFilter(String filterElement, String value) {
         switch (filterElement) {
             case "id":
-                try {
-                    Integer.parseInt(value);
-                } catch (NumberFormatException e) {
-                    return false;
-                }
             case "coordinates\\.x":
-                try {
-                    Integer.parseInt(value);
-                } catch (NumberFormatException e) {
-                    return false;
-                }
             case "coordinates\\.y":
                 try {
                     Integer.parseInt(value);
+                    return true;
                 } catch (NumberFormatException e) {
                     return false;
                 }
             case "creationDate":
                 try {
                     Date.from(LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                    return true;
                 } catch (NullPointerException | IllegalArgumentException e) {
                     return false;
                 }
@@ -418,7 +474,6 @@ public class ProductsApiServiceImpl {
 
     public Response getAllProducts(List<String> sort, List<String> filter, @Min(0) Integer page, @Min(1) Integer pagesCount) throws NotFoundException {
 
-        final String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)(==|!=|>|<|>=|<=)(.+)";
         // do some magic!
         if (sort != null) {
             for (String sort_element : sort) {
@@ -438,9 +493,21 @@ public class ProductsApiServiceImpl {
                             "фильтрации в соответствии с требованиями, которые я вам\n" +
                             "указал")).build();
                 }
-                String field = Pattern.compile("^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)").matcher(filter_element).group(1);
-                String value = Pattern.compile("(.+)").matcher(filter_element).group(1);
-                if (!checkCorrectFilter(field, value)); {
+
+                Pattern expressionPattern = Pattern.compile(filterRegex);
+                Matcher expressionMatcher = expressionPattern.matcher(filter_element);
+
+                String field;
+                String value;
+                if (expressionMatcher.find()) {
+                    field = expressionMatcher.group(1);
+                    value = expressionMatcher.group(3);
+                } else {
+                    field = null;
+                    value = null;
+                }
+
+                if (field == null ||  value == null || !checkCorrectFilter(field, value)) {
                     return Response.status(400).entity(new ApiResponseMessage("Вы должны были указать параметры сортировки и\n" +
                             "фильтрации в соответствии с требованиями, которые я вам\n" +
                             "указал")).build();
@@ -453,6 +520,8 @@ public class ProductsApiServiceImpl {
         List<SortingParams> sortingParams = SortingParams.stringToEnum(sort);
         ProductCompositeComparator productCompositeComparator = new ProductCompositeComparator(sortingParams);
         productList.sort(productCompositeComparator);
+        productList = filteredList(productList, filter);
+
 
         if (productList.isEmpty()) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();

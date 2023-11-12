@@ -1,4 +1,4 @@
-package org.ifmo.soalab2;
+package org.ifmo.soalab2.firstService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.ifmo.soalab2.NotFoundException;
 import org.ifmo.soalab2.model.Product;
 import org.ifmo.soalab2.model.ProductWithoutDate;
 import org.ifmo.soalab2.model.Products;
@@ -48,7 +49,7 @@ public class ProductsApi {
     )
     public Response deleteProductById(
             @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("product_id") String productId
-    ) throws NotFoundException {
+    ) throws org.ifmo.soalab2.NotFoundException {
         return delegate.deleteProductById(productId);
     }
 
@@ -63,7 +64,7 @@ public class ProductsApi {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
     public Response deleteProductByManufactureCost(
             @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("cost") String manufactureCost
-    ) throws NotFoundException {
+    ) throws org.ifmo.soalab2.NotFoundException {
         return delegate.deleteProductByManufactureCost(manufactureCost);
     }
 
@@ -127,7 +128,7 @@ public class ProductsApi {
                     description = "Обозначает количество страниц, на которые произвести разбиение, при условии, что работает пагинация. Если параметр 'page' не указан, то по умолчанию отобразится 1-ая страница. Если оба параметра не указаны, то возвращается полный список.",
                     schema = @Schema(allowableValues = {"1"}, minimum = "1")
             ) @DefaultValue("5") @QueryParam("pagesCount") Integer pagesCount
-    ) throws NotFoundException {
+    ) throws org.ifmo.soalab2.NotFoundException {
         return delegate.getAllProducts(sort, filter, page, pagesCount);
     }
 
@@ -143,7 +144,7 @@ public class ProductsApi {
     })
     public Response getProductById(
             @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("product_id") String productId
-    ) throws NotFoundException {
+    ) throws org.ifmo.soalab2.NotFoundException {
         return delegate.getProductById(productId);
     }
 
@@ -155,7 +156,7 @@ public class ProductsApi {
             @ApiResponse(responseCode = "200", description = "Успешный ответ с удалённым продуктом", content = @Content(mediaType = "application/xml", schema = @Schema(implementation = Product.class))),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
-    public Response getProductByMaxUnitOfMeasure() throws NotFoundException {
+    public Response getProductByMaxUnitOfMeasure() throws org.ifmo.soalab2.NotFoundException {
         return delegate.getProductByMaxUnitOfMeasure();
     }
 
@@ -171,7 +172,7 @@ public class ProductsApi {
     })
     public Response getProductsByLessManufacturerAnnualTurnover(
             @Parameter(in = ParameterIn.PATH, description = "", required = true) @PathParam("turnover") String annualTurnover
-    ) throws NotFoundException {
+    ) throws org.ifmo.soalab2.NotFoundException {
         return delegate.getProductsByLessManufacturerAnnualTurnover(annualTurnover);
     }
 
