@@ -1,8 +1,9 @@
 import './App.css';
-import {Box, Button, TextField} from "@mui/material";
+import {Box, Button, Table, TableCell, TableContainer, TableHead, TableRow, TextField} from "@mui/material";
 import {useState} from "react";
 import {ProductList} from "./ProductList";
 import {GetTrip} from "./GetTrip";
+import {UpdateForm} from "./utils";
 
 function App() {
 
@@ -11,16 +12,41 @@ function App() {
 
     return (
         <div>
-            <Box sx={{
-                minHeight: 100,
-                border: 1,
-                paddingTop: 2
-            }}>
-                <Button variant="outlined" onClick={() => setContent("getTrips")}>Get products</Button>
-                <Button variant="outlined" onClick={() => setContent("getTrip")}>GetTrip</Button>
-                <TextField id="outlined-basic" label="tripId" variant="outlined" onChange={(field) => setProductID(field.target.value)}/>
-                <Button variant="outlined" onClick={() => setContent("")}>Erase</Button>
+            <Box className="Header">
+                <Box className="Header-item">
+                    <Button variant="outlined" onClick={() => setContent("getTrips")}>Get products</Button>
+                </Box>
+                <Box className="Header-item">
+                    <Box>
+                        <Button variant="outlined" onClick={() => setContent("getTrip")}>
+                            GetTrip
+                        </Button>
+                    </Box>
+                    <Box>
+                        <TextField id="outlined-basic" label="tripId" variant="outlined"
+                                   onChange={(field) => setProductID(field.target.value)}
+                        />
+                    </Box>
+                </Box>
+
+                <Box className="Header-item" sx={{display: 'flex', direction: 'column'}} >
+                    <Box sx={{height: 50, width: 50, border: 'solid', margin: 2}}>
+                        First item
+                    </Box>
+                    <Box sx={{height: 50, width: 50, border: 'solid', margin: 2}}>
+                        Second item
+                    </Box>
+                </Box>
+
+                <Box className="Header-item">
+                    <Button variant="outlined" onClick={() => setContent("updateTrip")}>Update the trip</Button>
+                </Box>
+                <Box className="Header-item">
+                    <Button variant="outlined" onClick={() => setContent("")}>Erase</Button>
+                </Box>
+
             </Box>
+
             <Box>
                 {content === "getTrips" &&
                     <ProductList/>
@@ -28,8 +54,13 @@ function App() {
                 {content === "getTrip" &&
                     <GetTrip productId={productID}/>
                 }
+                {content === "updateTrip" &&
+                    <UpdateForm/>
+                }
                 {content === "" &&
-                    <h1>You didn't get trips bro</h1>
+                    <div>
+                        <h1>Empty page</h1>
+                    </div>
                 }
             </Box>
         </div>

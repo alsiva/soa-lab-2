@@ -24,6 +24,22 @@
   color: white;
 }
 
+
+.Header-item {
+  border: solid;
+  height: 100px;
+  margin: 10px;
+}
+
+.Header {
+  display: flex;
+  border: 1px solid;
+}
+
+.coordinate {
+  width: fit-content;
+}
+
 .App-link {
   color: #61dafb;
 }

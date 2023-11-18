@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
-import Card from '@mui/material/Card'
-import {Box, CardContent, CardHeader, Typography} from "@mui/material";
-import {CardView, parseProduct} from "./utils";
+import {Box} from "@mui/material";
+import {CardView, parseProduct, TableView} from "./utils";
 
 
 export function ProductList() {
@@ -24,15 +23,9 @@ export function ProductList() {
 
     }, []);
 
+    //<CardView key={product.id} product={product}/>
     return (
-        <Box sx={{
-            display: 'inline-flex',
-            flexDirection: 'column',
-        }}>
-            {products.map(product =>
-                <CardView key={product.id} product={product}/>
-            )}
-        </Box>
+        <TableView products={products}></TableView>
     )
 
 }

@@ -5,20 +5,43 @@ export function GetTrip({productId}) {
     const [product, setProduct] = useState(null)
 
     useEffect(() => {
-        window.fetch(`/products/${productId}`)
-            .then(response => response.text())
-            .then(text => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, "application/xml");
-                const product = doc.querySelector("Product")
-                setProduct(parseProduct(product))
-                console.log(productId)
-            })
+        (async () => {
 
+            if (productId === null || isNaN(productId)) {
+                return
+            }
+
+            const response = await fetch(`/products/${productId}`)
+            if (response.status === 404) {
+                return
+            }
+
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(await response.text(), "application/xml")
+            const product = doc.querySelector("Product")
+
+            console.log(product)
+
+
+            setProduct(parseProduct(product))
+
+        })()
     }, []);
 
-    return (
-        <CardView product={product}></CardView>
-    )
+    if (isNaN(productId)) {
+        return (
+            <div>User eblan exception</div>
+        )
+    } else if (product === null) {
+        return (
+            <div>No product</div>
+        )
+    } else {
+        return (
+            <CardView product={product}/>
+
+        )
+    }
+
 
 }
