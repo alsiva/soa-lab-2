@@ -1,8 +1,8 @@
 import './App.css';
-import {Box, Button, Table, TableCell, TableContainer, TableHead, TableRow, TextField} from "@mui/material";
+import {Box, Button, TextField} from "@mui/material";
 import {useState} from "react";
 import {ProductList} from "./ProductList";
-import {GetTrip} from "./GetTrip";
+import {SingleProduct} from "./SingleProduct";
 import {UpdateForm} from "./utils";
 
 function App() {
@@ -52,7 +52,7 @@ function App() {
                     <ProductList/>
                 }
                 {content === "getTrip" &&
-                    <GetTrip productId={productID}/>
+                    <SingleProduct productId={productID}/>
                 }
                 {content === "updateTrip" &&
                     <UpdateForm/>
