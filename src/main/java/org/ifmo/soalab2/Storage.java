@@ -121,7 +121,7 @@ public class Storage {
     }
 
     public Product updateProductById(ProductWithoutDate productWithoutDate, Integer productId) {
-        Product product = productList.get(productId);
+        Product product = productList.get(productId - 1);
         if (product == null) {
             return null;
         }

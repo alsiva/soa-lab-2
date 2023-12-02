@@ -116,7 +116,7 @@ public class ProductsApi {
             ) @QueryParam("sort") List<String> sort,
             @Parameter(
                     in = ParameterIn.QUERY,
-                    description = "Массив полей для фильтрации. Вы можете указать id, name coordinates_x, coordinates_y, location_id, location_x, location_y, location_name, distance. После одного из этих полей вы указываете символ сравнения (==) (!=) (>) (<) (>=) (<=)."
+                    description = "Массив полей для фильтрации. Вы можете указать id, name, coordinates_x, coordinates_y, location_id, location_x, location_y, location_name, distance. После одного из этих полей вы указываете символ сравнения (==) (!=) (>) (<) (>=) (<=)."
             ) @QueryParam("filter") List<String> filter,
             @Parameter(
                     in = ParameterIn.QUERY,

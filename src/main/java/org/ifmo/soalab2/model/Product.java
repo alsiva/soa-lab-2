@@ -41,7 +41,9 @@ public class Product implements OneOfProductsItems, Serializable {
     private UnitOfMeasure unitOfMeasure;
     private ProductOrganization organization;
 
-    public Product() {}
+    //Не удалять необходим для работы JAXB
+    public Product() {
+    }
 
     public Product(String name, ProductCoordinates coordinates, Date creationDate, Float price, Long manufactureCost, UnitOfMeasure unitOfMeasure, ProductOrganization organization) {
         this.id = ++idCounter;

@@ -36,6 +36,10 @@
   border: 1px solid;
 }
 
+.FilterBox {
+  margin-left: 16px;
+}
+
 .coordinate {
   width: fit-content;
 }

@@ -4,6 +4,7 @@ import {Box, Button, CardContent, CardHeader, Typography} from "@mui/material";
 import Card from "@mui/material/Card";
 import {useState} from "react";
 import dayjs from "dayjs";
+import {serializeProduct} from "./serializing";
 
 export async function productLoader({ params }) {
     const { productId } = params;
@@ -56,42 +57,19 @@ function ProductCardView({product}) {
     }
 
     async function updateProduct(nextProduct) {
-        const xmlBody = `
-            <Product>
-                <name>
-                    ${nextProduct.name}
-                </name>
-                <coordinates>
-                    <x>${nextProduct.coordinates.x}</x>
-                    <y>${nextProduct.coordinates.y}</y>
-                </coordinates>
-                <price>${nextProduct.price}</price>
-                <manufactureCost>${nextProduct.manufactureCost}</manufactureCost>
-                <unitOfMeasure>${nextProduct.unitOfMeasure}</unitOfMeasure>
-                <organization>
-                    <orgId>${nextProduct.organization.orgId}</orgId>
-                    <name>${nextProduct.organization.name}</name>
-                    <annualTurnover>${nextProduct.organization.annualTurnover}</annualTurnover>
-                    <orgType>${nextProduct.organization.orgType}</orgType>
-                    <postalAddress>
-                        <zipcode>${nextProduct.organization.postalAddress.zipcode}</zipcode>
-                    </postalAddress>
-                </organization>
-            </Product>
-        `
+        const serializedProduct = serializeProduct(nextProduct)
 
         const response = await fetch(`/products/${nextProduct.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/xml'
             },
-            body: xmlBody
+            body: serializedProduct
         })
 
-        console.log(xmlBody)
+        console.log(serializedProduct)
         console.log(response)
     }
-
 
 
     const [productState, setProductState] = useState(product)
@@ -103,7 +81,7 @@ function ProductCardView({product}) {
                 flexDirection: 'column',
             }}>
                 {<Card key={product.id} sx={{margin: 1, border: 5}}>
-                    <CardHeader title={product.name}/>
+                    <CardHeader title={productState.name}/>
                     <CardContent>
                         <Typography component={'span'} variant={'body2'} align='left'>
                             ID -- {product.id} <br/>

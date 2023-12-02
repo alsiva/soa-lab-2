@@ -34,9 +34,6 @@ import java.util.Objects;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProductOrganization implements Serializable {
 
-    public ProductOrganization() {
-    }
-
     private Integer orgId;
 
 
@@ -88,6 +85,9 @@ public class ProductOrganization implements Serializable {
 
 
     private ProductOrganizationPostalAddress postalAddress;
+
+    public ProductOrganization() {
+    }
 
     public ProductOrganization(Integer orgId, String name, String fullName, Float annualTurnover, OrgTypeEnum orgType, ProductOrganizationPostalAddress postalAddress) {
         this.orgId = orgId;

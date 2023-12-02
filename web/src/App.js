@@ -1,67 +1,45 @@
 import './App.css';
-import {Box, Button, TextField} from "@mui/material";
-import {useState} from "react";
-import {ProductList} from "./ProductList";
-import {SingleProduct} from "./SingleProduct";
-import {UpdateForm} from "./utils";
+import {Box,  LinearProgress, Stack} from "@mui/material";
+import {NavLink, Outlet, useNavigation} from "react-router-dom";
+
 
 function App() {
+    const navigation = useNavigation();
 
-    const [content, setContent] = useState("")
-    const [productID, setProductID] = useState(null)
 
     return (
         <div>
-            <Box className="Header">
-                <Box className="Header-item">
-                    <Button variant="outlined" onClick={() => setContent("getTrips")}>Get products</Button>
-                </Box>
-                <Box className="Header-item">
-                    <Box>
-                        <Button variant="outlined" onClick={() => setContent("getTrip")}>
-                            GetTrip
-                        </Button>
-                    </Box>
-                    <Box>
-                        <TextField id="outlined-basic" label="tripId" variant="outlined"
-                                   onChange={(field) => setProductID(field.target.value)}
-                        />
-                    </Box>
-                </Box>
+            <Box sx={{ width: '100%', margin: '0 16px' }}>
+                <LinearProgress sx={{
+                    opacity: (navigation.state === 'loading') ? 1 : 0 ,
+                    transition: 'opacity 100ms',
+                }} />
 
-                <Box className="Header-item" sx={{display: 'flex', direction: 'column'}} >
-                    <Box sx={{height: 50, width: 50, border: 'solid', margin: 2}}>
-                        First item
-                    </Box>
-                    <Box sx={{height: 50, width: 50, border: 'solid', margin: 2}}>
-                        Second item
-                    </Box>
-                </Box>
+                <Stack direction="row" spacing={2} sx={{ margin: '16px 0'}}>
+                    <Stack direction="column">
+                        <NavLink
+                            to="products"
+                            className={({ isActive, isPending }) =>
+                                isPending ? "pending" : isActive ? "active" : ""
+                            }
+                        >
+                            Products
+                        </NavLink>
+                    </Stack>
 
-                <Box className="Header-item">
-                    <Button variant="outlined" onClick={() => setContent("updateTrip")}>Update the trip</Button>
-                </Box>
-                <Box className="Header-item">
-                    <Button variant="outlined" onClick={() => setContent("")}>Erase</Button>
-                </Box>
+                    <NavLink
+                        to="products/new"
+                        className={({ isActive, isPending }) =>
+                            isPending ? "pending" : isActive ? "active" : ""
+                        }
+                    >
+                        New product
+                    </NavLink>
+                </Stack>
 
             </Box>
-
-            <Box>
-                {content === "getTrips" &&
-                    <ProductList/>
-                }
-                {content === "getTrip" &&
-                    <SingleProduct productId={productID}/>
-                }
-                {content === "updateTrip" &&
-                    <UpdateForm/>
-                }
-                {content === "" &&
-                    <div>
-                        <h1>Empty page</h1>
-                    </div>
-                }
+            <Box sx={{width: '100%'}}>
+                <Outlet/>
             </Box>
         </div>
     );

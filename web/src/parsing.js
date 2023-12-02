@@ -1,24 +1,34 @@
 export function parseProduct(product) {
+    const organization = product.querySelector("organization")
+
     return {
         id: parseInt(product.querySelector("id").textContent),
         name: product.querySelector("name").textContent,
-        coordinates: {
-            x: parseFloat(product.querySelector("coordinates > x").textContent),
-            y: parseInt(product.querySelector("coordinates > y").textContent)
-        },
+        coordinates: parseCoordinates(product.querySelector("coordinates")),
         creationDate: product.querySelector("creationDate").textContent,
         price: parseFloat(product.querySelector("price").textContent),
         unitOfMeasure: product.querySelector("unitOfMeasure").textContent,
         manufactureCost: parseInt(product.querySelector("manufactureCost").textContent),
-        organization: {
-            orgId: parseInt(product.querySelector("organization > orgId").textContent),
-            name: product.querySelector("organization > name").textContent,
-            fullName: product.querySelector("organization > fullName").textContent,
-            annualTurnover: parseFloat(product.querySelector("organization > annualTurnover").textContent),
-            orgType: product.querySelector("organization > orgType").textContent,
-            postalAddress: {
-                zipcode: parseInt(product.querySelector("organization > postalAddress > zipcode").textContent)
-            }
+        organization: parseOrganisation(organization),
+    }
+}
+
+function parseCoordinates(coordinates) {
+    return {
+        x: parseFloat(coordinates.querySelector("x").textContent),
+        y: parseInt(coordinates.querySelector("y").textContent)
+    }
+}
+
+function parseOrganisation(organization) {
+    return {
+        orgId: parseInt(organization.querySelector("orgId").textContent),
+        name: organization.querySelector("name").textContent,
+        fullName: organization.querySelector("fullName").textContent,
+        annualTurnover: parseFloat(organization.querySelector("annualTurnover").textContent),
+        orgType: organization.querySelector("orgType").textContent,
+        postalAddress: {
+            zipcode: parseInt(organization.querySelector("postalAddress > zipcode").textContent)
         }
     }
 }

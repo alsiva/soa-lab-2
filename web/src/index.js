@@ -11,22 +11,29 @@ import {
 } from "react-router-dom";
 import {SingleProduct, productLoader} from "./SingleProduct";
 import {ProductList, productListLoader} from "./ProductList";
+import {CreateProduct} from "./CreateProduct";
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <App/>,
+        children: [
+            {
+                path: "products",
+                loader: productListLoader,
+                element: <ProductList/>
+            },
+            {
+                path: "/products/new",
+                element: <CreateProduct />
+            },
+            {
+                path: "/products/:productId",
+                loader: productLoader,
+                element: <SingleProduct />
+            }
+        ]
     },
-    {
-        path: "/products",
-        loader: productListLoader,
-        element: <ProductList/>
-    },
-    {
-        path: "/products/:productId",
-        loader: productLoader,
-        element: <SingleProduct />
-    }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
