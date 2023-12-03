@@ -8,14 +8,14 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.ws.rs.core.Response;
 import org.ifmo.soalab2.ApiResponseMessage;
+import org.ifmo.soalab2.IllegalFilterException;
 import org.ifmo.soalab2.NotFoundException;
 import org.ifmo.soalab2.Storage;
 import org.ifmo.soalab2.model.*;
 
+import java.nio.channels.IllegalChannelGroupException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,87 +27,33 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ProductsApiServiceImpl {
 
-    private enum SortingParams {
-        product_id,
-        name,
-        coordinate_x,
-        coordinate_y,
-        creationDate,
-        price,
-        manufactureCost,
-        unitOfMeasure,
-        org_id,
-        org_name,
-        org_fullName,
-        org_annualTurnover,
-        org_type,
-        postalAddress_zipcode,
-        desc_product_id,
-        desc_name,
-        desc_coordinate_x,
-        desc_coordinate_y,
-        desc_creationDate,
-        desc_price,
-        desc_manufactureCost,
-        desc_unitOfMeasure,
-        desc_org_id,
-        desc_org_name,
-        desc_org_fullName,
-        desc_org_annualTurnover,
-        desc_org_type,
-        desc_postalAddress_zipcode;
-
-        public static boolean containsString(String string) {
-            for (SortingParams sortingParam : values()) {
-                if (sortingParam.name().equalsIgnoreCase(string)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static List<SortingParams> stringToEnum(List<String> stringList) {
-            List<SortingParams> answer = new ArrayList<>();
-            for (SortingParams sortingParam : values()) {
-                for (String stringSortElement : stringList) {
-                    if (sortingParam.name().equalsIgnoreCase(stringSortElement)) {
-                        answer.add(sortingParam);
-                    }
-                }
-            }
-            return answer;
-        }
-    }
-
-    private final String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|location\\\\.id|location\\\\.x|location\\\\.y|location\\\\.name|distance)-(eq|nq|gt|lt|gte|lte)-(.+)";
+    private final static String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|price|manufactureCost|unitOfMeasure|org_id|org_name|org_fullName|org_annualTurnover|org_type|postalAddress_zipcode)-(eq|nq|gt|lt|gte|lte)-(.+)";
+    private final static Pattern filterPattern = Pattern.compile(filterRegex);
 
 
-    public <T extends Comparable<T>> boolean compareField(T field1, T field2, String comp) {
-        switch (comp) {
+    public static <T extends Comparable<T>> boolean compareField(T a, T b, String operator) {
+        switch (operator) {
             case "eq":
-                return field1.equals(field2);
+                return a.equals(b);
             case "nq":
-                return !field1.equals(field2);
+                return !a.equals(b);
             case "gt":
-                return field1.compareTo(field2) > 0;
+                return a.compareTo(b) > 0;
             case "lt":
-                return field1.compareTo(field2) < 0;
+                return a.compareTo(b) < 0;
             case "gte":
-                return field1.compareTo(field2) >= 0;
+                return a.compareTo(b) >= 0;
             case "lte":
-                return field1.compareTo(field2) <= 0;
+                return a.compareTo(b) <= 0;
         }
 
         return true;
     }
 
-    private List<Product> filteredList(List<Product> productList, List<String> filterList) {
-        List<Product> result = new ArrayList<>(storage.getProductList());
-
-        result = result.stream().filter(product -> {
+    private static List<Product> filterProducts(List<Product> productList, List<String> filterList) throws IllegalArgumentException {
+        return productList.stream().filter(product -> {
             for (String filter : filterList) {
-                Pattern expressionPattern = Pattern.compile(filterRegex);
-                Matcher expressionMatcher = expressionPattern.matcher(filter);
+                Matcher expressionMatcher = filterPattern.matcher(filter);
 
                 String field;
                 String comp;
@@ -117,51 +63,116 @@ public class ProductsApiServiceImpl {
                     comp = expressionMatcher.group(2);
                     value = expressionMatcher.group(3);
                 } else {
-                    throw new NullPointerException("Ты как здесь null pointer схватил");
+                    throw new IllegalArgumentException("Фильтр должен иметь структуру <поле>-<оператор>-<значение>, вместо этого: " + filter);
                 }
 
                 switch (field) {
                     case "id":
-                        return compareField(product.getId(), Integer.parseInt(value), comp);
+                        int id;
+                        try {
+                            id = Integer.parseInt(value);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getId(), id, comp);
+
                     case "name":
                         return compareField(product.getName(), value, comp);
+
                     case "coordinates\\.x":
-                        return compareField(product.getCoordinates().getX(), Integer.parseInt(value), comp);
+                        int coordinateX;
+                        try {
+                            coordinateX = Integer.parseInt(value);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getCoordinates().getX(), coordinateX, comp);
+
                     case "coordinates\\.y":
-                        return compareField(product.getCoordinates().getY(), Integer.parseInt(value), comp);
+                        int coordinateY;
+                        try {
+                            coordinateY = Integer.parseInt(value);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getCoordinates().getY(), coordinateY, comp);
+
                     case "creationDate":
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                         Date date;
                         try {
                             date = dateFormat.parse(value);
                         } catch (ParseException e) {
-                            throw new RuntimeException(e);
+                            throw new IllegalFilterException(field, value);
                         }
                         return compareField(product.getCreationDate(), date, comp);
+
                     case "price":
-                        return compareField(product.getPrice(), Float.parseFloat(value), comp);
+                        float price;
+                        try {
+                            price = Float.parseFloat(value);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getPrice(), price, comp);
+
                     case "manufactureCost":
-                        return compareField(product.getManufactureCost(), Long.parseLong(value), comp);
+                        long manufactureCost;
+                        try {
+                            manufactureCost = Long.parseLong(value);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getManufactureCost(), manufactureCost, comp);
+
                     case "unitOfMeasure":
-                        return compareField(product.getUnitOfMeasure(), UnitOfMeasure.valueOf(value), comp);
+                        UnitOfMeasure unitOfMeasure;
+                        try {
+                            unitOfMeasure = UnitOfMeasure.valueOf(value);
+                        } catch (IllegalArgumentException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getUnitOfMeasure(), unitOfMeasure, comp);
+
                     case "org_id":
-                        return compareField(product.getOrganization().getOrgId(), Integer.parseInt(value), comp);
+                        int orgId;
+                        try {
+                            orgId = Integer.parseInt(value);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getOrganization().getOrgId(), orgId, comp);
+
                     case "org_name":
                         return compareField(product.getOrganization().getName(), value, comp);
+
                     case "org_fullName":
                         return compareField(product.getOrganization().getFullName(), value, comp);
+
                     case "org_annualTurnover":
-                        return compareField(product.getOrganization().getAnnualTurnover(), Float.parseFloat(value), comp);
+                        float annualTurnover;
+                        try {
+                            annualTurnover = Float.parseFloat(value);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getOrganization().getAnnualTurnover(), annualTurnover, comp);
+
                     case "org_type":
-                        return compareField(product.getOrganization().getOrgType(), ProductOrganization.OrgTypeEnum.valueOf(value), comp);
+                        ProductOrganization.OrgTypeEnum orgType;
+                        try {
+                            orgType = ProductOrganization.OrgTypeEnum.valueOf(value);
+                        } catch (IllegalArgumentException e) {
+                            throw new IllegalFilterException(field, value);
+                        }
+                        return compareField(product.getOrganization().getOrgType(), orgType, comp);
+
                     case "postalAddress_zipcode":
                         return compareField(product.getOrganization().getPostalAddress().getZipcode(), value, comp);
                 }
             }
             return true;
         }).collect(Collectors.toList());
-
-        return result;
     }
 
     private static class ProductCompositeComparator implements Comparator<Product> {
@@ -250,7 +261,6 @@ public class ProductsApiServiceImpl {
     Storage storage;
 
     public Response addProduct(ProductWithoutDate body) {
-        // do some magic!
         if (
                 body.getName() == null ||
                         body.getCoordinates() == null ||
@@ -316,112 +326,28 @@ public class ProductsApiServiceImpl {
         return Response.ok().entity(removedProduct).build();
     }
 
-    private boolean checkCorrectFilter(String filterElement, String value) {
-        switch (filterElement) {
-            case "id":
-            case "coordinates\\.x":
-            case "coordinates\\.y":
-            case "org_id":
-                try {
-                    Integer.parseInt(value);
-                    return true;
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-            case "creationDate":
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    dateFormat.parse(value);
-                } catch (ParseException e) {
-                    return false;
-                }
-                return true;
-            case "price":
-            case "org_annualTurnover":
-                try {
-                    Float.parseFloat(value);
-                    return true;
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-            case "manufactureCost":
-                try {
-                    Long.parseLong(value);
-                    return true;
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-            case "unitOfMeasure":
-                try {
-                    UnitOfMeasure.valueOf(value);
-                    return true;
-                } catch (IllegalArgumentException e) {
-                    return false;
-                }
-            case "org_type":
-                try {
-                    ProductOrganization.OrgTypeEnum.valueOf(value);
-                    return true;
-                } catch (IllegalArgumentException e) {
-                    return false;
-                }
-        }
-        return true;
-    }
-
     public Response getAllProducts(List<String> sort, List<String> filter, @Min(0) Integer page, @Min(1) Integer pagesCount) throws NotFoundException {
-
-        // do some magic!
-        if (sort != null) {
-            for (String sort_element : sort) {
-                if (!SortingParams.containsString(sort_element)) {
-                    return Response.status(400).entity(new ApiResponseMessage("Вы должны были указать параметры сортировки и\n" +
-                            "фильтрации в соответствии с требованиями, которые я вам\n" +
-                            "указал")).build();
-                }
-
-            }
-        }
-
-        if (filter != null) {
-            for (String filter_element : filter) {
-                if (!filter_element.matches(filterRegex)) {
-                    return Response.status(400).entity(new ApiResponseMessage("Вы должны были указать параметры сортировки и\n" +
-                            "фильтрации в соответствии с требованиями, которые я вам\n" +
-                            "указал")).build();
-                }
-
-                Pattern expressionPattern = Pattern.compile(filterRegex);
-                Matcher expressionMatcher = expressionPattern.matcher(filter_element);
-
-                String field;
-                String value;
-                if (expressionMatcher.find()) {
-                    field = expressionMatcher.group(1);
-                    value = expressionMatcher.group(3);
-                } else {
-                    field = null;
-                    value = null;
-                }
-
-                if (field == null || value == null || !checkCorrectFilter(field, value)) {
-                    return Response.status(400).entity(new ApiResponseMessage("Вы должны были указать параметры сортировки и\n" +
-                            "фильтрации в соответствии с требованиями, которые я вам\n" +
-                            "указал")).build();
-                }
-            }
+        List<SortingParams> sortingParams;
+        try {
+            sortingParams = SortingParams.parseSortingParams(sort);
+        } catch (IllegalArgumentException e) {
+            return Response.status(400).entity(e.getMessage()).build();
         }
 
 
         List<Product> productList = storage.getProductList();
-        List<SortingParams> sortingParams = SortingParams.stringToEnum(sort);
+        try {
+            productList = filterProducts(productList, filter);
+        } catch (IllegalArgumentException e) {
+            return Response.status(400).entity(e.getMessage()).build();
+        }
+
         ProductCompositeComparator productCompositeComparator = new ProductCompositeComparator(sortingParams);
         productList.sort(productCompositeComparator);
-        productList = filteredList(productList, filter);
 
 
         if (productList.isEmpty()) {
-            return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
+            return Response.status(404).entity(new ApiResponseMessage("Список продуктов пуст")).build();
         }
 
         Products products = new Products(productList);
@@ -429,7 +355,6 @@ public class ProductsApiServiceImpl {
     }
 
     public Response getProductById(String productIdAsString) throws NotFoundException {
-
         Integer productId = parseId(productIdAsString);
         if (productId == null) {
             return Response.status(400).entity(new ApiResponseMessage("ID должен быть неотрицательным, также не может быть строкой")).build();
