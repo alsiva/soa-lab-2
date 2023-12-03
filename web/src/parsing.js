@@ -1,3 +1,13 @@
+
+export function parseProducts(doc) {
+    const xml = doc.querySelectorAll("product")
+    const productArray = []
+    for (const product of xml) {
+        productArray.push(parseProduct(product))
+    }
+    return productArray;
+}
+
 export function parseProduct(product) {
     const organization = product.querySelector("organization")
 

@@ -1,43 +1,12 @@
 import {Link, useLoaderData, useSearchParams} from "react-router-dom";
-import {parseProduct} from "./parsing";
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
-import {wait} from "@testing-library/user-event/dist/utils";
+import {parseProducts} from "./parsing";
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField} from "@mui/material";
 
 
 export async function productListLoader({request}) {
-
     const browserUrl = new URL(request.url);
-    const filterString = browserUrl.searchParams.get('filter')
-    const filterList = filterString != null
-        ? filterString.split(',')
-        : null
 
-    const sortString = browserUrl.searchParams.get('sort')
-    const sortList = sortString != null
-        ? sortString.split(',')
-        : null
-
-    let backendUrl = "products"
-    if (filterList != null || sortList != null) {
-        backendUrl += '?'
-    }
-
-    if (filterList != null) {
-        for (let i = 0; i < filterList.length; i++) {
-            backendUrl += `filter=${filterList[i]}`
-            if (i !== filterList.length - 1) backendUrl += "&"
-        }
-    }
-
-    if (sortList != null) {
-        backendUrl += '?'
-        for (let i = 0; i < sortList.length; i++) {
-            backendUrl += `sort=${sortList[i]}`
-            if (i !== sortList.length - 1) backendUrl += "&"
-        }
-    }
-
-    const response = await fetch(backendUrl)
+    const response = await fetch(`/products?${browserUrl.searchParams.toString()}`)
     if (response.status !== 200) {
         return {isSuccess: false}
     }
@@ -45,28 +14,62 @@ export async function productListLoader({request}) {
     const text = await response.text()
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, "application/xml");
-    const xml = doc.querySelectorAll("product")
-    const productArray = []
-    for (const product of xml) {
-        productArray.push(parseProduct(product))
-    }
+    const productArray = parseProducts(doc);
+
     return {isSuccess: true, products: productArray}
 
 }
 
 export function ProductList() {
     const {isSuccess, products} = useLoaderData()
-    let [searchParams, setSearchParams] = useSearchParams();
+    let [_, setSearchParams] = useSearchParams();
 
+    function changeFilter(nextFilterName, nextOperator, event) {
+        const nextFilterValue = event.target.value.trim()
+
+        setSearchParams(prev => {
+            const currentFilters = prev.getAll('filter')
+
+            const filterMap = new Map()
+            for (const filter of currentFilters) {
+                const [currentFilterName, operator, filterValue] = filter.split('-', 3)
+                filterMap.set(currentFilterName, {
+                    operator,
+                    filterValue,
+                })
+            }
+
+            if (nextFilterValue === '') {
+                filterMap.delete(nextFilterName)
+            } else {
+                filterMap.set(nextFilterName, {
+                    operator: nextOperator,
+                    filterValue: nextFilterValue
+                })
+            }
+
+            prev.delete('filter')
+            for (const entry of filterMap.entries()) {
+                const [filterName, filterOpAndValue] = entry;
+                const { operator, filterValue } = filterOpAndValue;
+
+                prev.append('filter', `${filterName}-${operator}-${filterValue}`)
+            }
+
+            return prev
+        })
+    }
 
     return (
         <>
-            <input type="text" onChange={event => {
-                setSearchParams({"filter": event.target.value})
+            <TextField id="name" label="name" size="small" variant="outlined" onChange={event => {
+                changeFilter('name', 'eq', event)
             }}/>
-            <input type="text" onChange={event => {
-                setSearchParams({"sort": event.target.value})
-            }}/>
+            <label>price
+                <input type="text" onChange={event => {
+                    changeFilter('price', 'lt', event)
+                }}/>
+            </label>
             {isSuccess === true
                 ? <ProductTableView products={products}></ProductTableView>
                 : <h1>Failed to fetch list of products</h1>
@@ -75,13 +78,15 @@ export function ProductList() {
     )
 }
 
-const filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|price|manufactureCost|unitOfMeasure|org_id|org_name|org_fullName|org_annualTurnover|org_type|postalAddress_zipcode)-(eq|nq|gt|lt|gte|lte)-(.+)"
-
 function ProductTableView({products}) {
+    if (products.length === 0) {
+        return (
+            <h2>Поиск не выдал подходящих продуктов. Попробуйте ослабить фильтрацию.</h2>
+        )
+    }
 
 
     return (
-
         <TableContainer>
             <Table sx={{minWidth: 650}} aria-label="Products table">
                 <TableHead>

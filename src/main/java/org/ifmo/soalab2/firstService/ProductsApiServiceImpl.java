@@ -56,11 +56,11 @@ public class ProductsApiServiceImpl {
                 Matcher expressionMatcher = filterPattern.matcher(filter);
 
                 String field;
-                String comp;
+                String operator;
                 String value;
                 if (expressionMatcher.find()) {
                     field = expressionMatcher.group(1);
-                    comp = expressionMatcher.group(2);
+                    operator = expressionMatcher.group(2);
                     value = expressionMatcher.group(3);
                 } else {
                     throw new IllegalArgumentException("Фильтр должен иметь структуру <поле>-<оператор>-<значение>, вместо этого: " + filter);
@@ -74,10 +74,16 @@ public class ProductsApiServiceImpl {
                         } catch (NumberFormatException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getId(), id, comp);
+                        if (!compareField(product.getId(), id, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "name":
-                        return compareField(product.getName(), value, comp);
+                        if (!compareField(product.getName(), value, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "coordinates\\.x":
                         int coordinateX;
@@ -86,7 +92,10 @@ public class ProductsApiServiceImpl {
                         } catch (NumberFormatException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getCoordinates().getX(), coordinateX, comp);
+                        if (!compareField(product.getCoordinates().getX(), coordinateX, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "coordinates\\.y":
                         int coordinateY;
@@ -95,7 +104,10 @@ public class ProductsApiServiceImpl {
                         } catch (NumberFormatException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getCoordinates().getY(), coordinateY, comp);
+                        if (!compareField(product.getCoordinates().getY(), coordinateY, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "creationDate":
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -105,7 +117,10 @@ public class ProductsApiServiceImpl {
                         } catch (ParseException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getCreationDate(), date, comp);
+                        if (!compareField(product.getCreationDate(), date, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "price":
                         float price;
@@ -114,7 +129,10 @@ public class ProductsApiServiceImpl {
                         } catch (NumberFormatException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getPrice(), price, comp);
+                        if (!compareField(product.getPrice(), price, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "manufactureCost":
                         long manufactureCost;
@@ -123,7 +141,10 @@ public class ProductsApiServiceImpl {
                         } catch (NumberFormatException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getManufactureCost(), manufactureCost, comp);
+                        if (!compareField(product.getManufactureCost(), manufactureCost, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "unitOfMeasure":
                         UnitOfMeasure unitOfMeasure;
@@ -132,7 +153,10 @@ public class ProductsApiServiceImpl {
                         } catch (IllegalArgumentException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getUnitOfMeasure(), unitOfMeasure, comp);
+                        if (!compareField(product.getUnitOfMeasure(), unitOfMeasure, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "org_id":
                         int orgId;
@@ -141,13 +165,22 @@ public class ProductsApiServiceImpl {
                         } catch (NumberFormatException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getOrganization().getOrgId(), orgId, comp);
+                        if (!compareField(product.getOrganization().getOrgId(), orgId, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "org_name":
-                        return compareField(product.getOrganization().getName(), value, comp);
+                        if (!compareField(product.getOrganization().getName(), value, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "org_fullName":
-                        return compareField(product.getOrganization().getFullName(), value, comp);
+                        if (!compareField(product.getOrganization().getFullName(), value, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "org_annualTurnover":
                         float annualTurnover;
@@ -156,7 +189,10 @@ public class ProductsApiServiceImpl {
                         } catch (NumberFormatException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getOrganization().getAnnualTurnover(), annualTurnover, comp);
+                        if (!compareField(product.getOrganization().getAnnualTurnover(), annualTurnover, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "org_type":
                         ProductOrganization.OrgTypeEnum orgType;
@@ -165,10 +201,16 @@ public class ProductsApiServiceImpl {
                         } catch (IllegalArgumentException e) {
                             throw new IllegalFilterException(field, value);
                         }
-                        return compareField(product.getOrganization().getOrgType(), orgType, comp);
+                        if (!compareField(product.getOrganization().getOrgType(), orgType, operator)) {
+                            return false;
+                        }
+                        break;
 
                     case "postalAddress_zipcode":
-                        return compareField(product.getOrganization().getPostalAddress().getZipcode(), value, comp);
+                        if (!compareField(product.getOrganization().getPostalAddress().getZipcode(), value, operator)) {
+                            return false;
+                        }
+                        break;
                 }
             }
             return true;
@@ -346,9 +388,11 @@ public class ProductsApiServiceImpl {
         productList.sort(productCompositeComparator);
 
 
+        /*
         if (productList.isEmpty()) {
             return Response.status(404).entity(new ApiResponseMessage("Список продуктов пуст")).build();
         }
+        */
 
         Products products = new Products(productList);
         return Response.ok().entity(products).build();
