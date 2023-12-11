@@ -5,15 +5,13 @@ import javax.validation.constraints.Min;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import jakarta.ws.rs.core.Response;
 import org.ifmo.soalab2.ApiResponseMessage;
 import org.ifmo.soalab2.IllegalFilterException;
 import org.ifmo.soalab2.NotFoundException;
 import org.ifmo.soalab2.Storage;
 import org.ifmo.soalab2.model.*;
-
-import java.nio.channels.IllegalChannelGroupException;
+import org.ifmo.soalab2.ProductRepository;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,7 +21,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
-@Named
+//@Named
 @ApplicationScoped
 public class ProductsApiServiceImpl {
 
@@ -302,6 +300,9 @@ public class ProductsApiServiceImpl {
     @Inject
     Storage storage;
 
+    @Inject
+    ProductRepository productRepository;
+
     public Response addProduct(ProductWithoutDate body) {
         if (
                 body.getName() == null ||
@@ -313,6 +314,7 @@ public class ProductsApiServiceImpl {
         ) {
             return Response.status(400).entity(new ApiResponseMessage("Неправильная структура продукта")).build();
         }
+
         Product product = storage.addProduct(body);
         return Response.ok().entity(product).build();
     }
@@ -377,7 +379,8 @@ public class ProductsApiServiceImpl {
         }
 
 
-        List<Product> productList = storage.getProductList();
+        List<Product> productList = productRepository.getProducts();
+
         try {
             productList = filterProducts(productList, filter);
         } catch (IllegalArgumentException e) {

@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * ProductWithoutID
  */
-@XmlRootElement(name = "ProductWithouID")
+@XmlRootElement(name = "ProductWithoutID")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProductWithoutID implements Serializable {
 

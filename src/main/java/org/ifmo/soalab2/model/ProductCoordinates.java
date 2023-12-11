@@ -12,8 +12,8 @@
 
 package org.ifmo.soalab2.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -26,6 +26,7 @@ import java.util.Objects;
  */
 @XmlRootElement(name = "ProductCoordinates")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Embeddable
 public class ProductCoordinates implements Serializable {
     private Integer x;
     private Integer y;

@@ -12,13 +12,14 @@
 
 package org.ifmo.soalab2.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
+
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
+
 
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
@@ -32,8 +33,10 @@ import java.util.Objects;
  */
 @XmlRootElement(name = "ProductOrganization")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Entity(name = "organization")
 public class ProductOrganization implements Serializable {
 
+    @Id
     private Integer orgId;
 
 

@@ -10,6 +10,8 @@ import java.util.*;
 @ApplicationScoped
 public class Storage {
 
+
+
     private final ProductOrganization tanyaOrganization = new ProductOrganization(
             1,
             "TanyaCo",
@@ -131,7 +133,7 @@ public class Storage {
         product.setPrice(productWithoutDate.getPrice());
         product.setManufactureCost(productWithoutDate.getManufactureCost());
         product.setUnitOfMeasure(productWithoutDate.getUnitOfMeasure());
-        product.organization(productWithoutDate.getOrganization());
+        product.setOrganization(productWithoutDate.getOrganization());
 
         return product;
     }

@@ -13,10 +13,10 @@
 package org.ifmo.soalab2.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
-
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Size;
@@ -29,16 +29,24 @@ import java.util.Objects;
  */
 @XmlRootElement(name = "Product")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Entity(name = "products")
 public class Product implements OneOfProductsItems, Serializable {
     private static int idCounter = 0;
 
+    @Id
     private Integer id;
+
+
     private String name;
+
+    @Embedded
     private ProductCoordinates coordinates;
     private Date creationDate;
     private Float price;
     private Long manufactureCost;
     private UnitOfMeasure unitOfMeasure;
+
+    @ManyToOne
     private ProductOrganization organization;
 
     //Не удалять необходим для работы JAXB
@@ -93,11 +101,6 @@ public class Product implements OneOfProductsItems, Serializable {
         this.name = name;
     }
 
-    public Product coordinates(ProductCoordinates coordinates) {
-        this.coordinates = coordinates;
-        return this;
-    }
-
     /**
      * Get coordinates
      *
@@ -132,11 +135,6 @@ public class Product implements OneOfProductsItems, Serializable {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
-    }
-
-    public Product price(Float price) {
-        this.price = price;
-        return this;
     }
 
     /**
@@ -176,11 +174,6 @@ public class Product implements OneOfProductsItems, Serializable {
         this.manufactureCost = manufactureCost;
     }
 
-    public Product unitOfMeasure(UnitOfMeasure unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
-        return this;
-    }
-
     /**
      * Get unitOfMeasure
      *
@@ -193,11 +186,6 @@ public class Product implements OneOfProductsItems, Serializable {
 
     public void setUnitOfMeasure(UnitOfMeasure unitOfMeasure) {
         this.unitOfMeasure = unitOfMeasure;
-    }
-
-    public Product organization(ProductOrganization organization) {
-        this.organization = organization;
-        return this;
     }
 
     /**
