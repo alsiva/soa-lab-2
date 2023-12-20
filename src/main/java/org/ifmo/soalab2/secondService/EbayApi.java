@@ -3,6 +3,7 @@ package org.ifmo.soalab2.secondService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import org.ifmo.soalab2.NotFoundException;
 
@@ -14,8 +15,8 @@ public class EbayApi {
 
 
     @GET
-    @Path("filter/price/{price-from}/{priceto}")
-    public Response getProductsWithRange(String priceFrom, String priceTo) throws NotFoundException {
+    @Path("filter/price/{priceFrom}/{priceTo}")
+    public Response getProductsWithRange(@PathParam("priceFrom") String priceFrom, @PathParam("priceTo") String priceTo) throws NotFoundException {
         return delegate.getProductsWithRange(priceFrom, priceTo);
     }
 

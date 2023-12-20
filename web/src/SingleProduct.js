@@ -12,7 +12,7 @@ export async function productLoader({ params }) {
         return { isSuccess: false, errorMsg: `invalid product id: ${productId}` }
     }
 
-    const response = await fetch(`/products/${productId}`)
+    const response = await fetch(`/api/products/${productId}`)
 
     if (response.status === 404) {
         return { isSuccess: false, errorMsg: `No product with id ${productId}` }
@@ -59,7 +59,7 @@ function ProductCardView({product}) {
     async function updateProduct(nextProduct) {
         const serializedProduct = serializeProduct(nextProduct)
 
-        const response = await fetch(`/products/${nextProduct.id}`, {
+        const response = await fetch(`/api/products/${nextProduct.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/xml'

@@ -133,6 +133,13 @@ public class ProductsApi {
     }
 
     @GET
+    @Path("/insert-sample-data")
+    @Produces({"application/xml"})
+    public Response insertSampleData() {
+        return delegate.insertSampleData();
+    }
+
+    @GET
     @Path("/{product_id}")
     @Produces({"application/xml"})
     @Operation(summary = "Метод получения продукта по идентификатору", description = "", tags = {"Product"})

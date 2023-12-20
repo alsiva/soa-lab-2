@@ -6,12 +6,9 @@ import javax.validation.constraints.Min;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.ifmo.soalab2.ApiResponseMessage;
-import org.ifmo.soalab2.IllegalFilterException;
-import org.ifmo.soalab2.NotFoundException;
-import org.ifmo.soalab2.Storage;
+import org.ifmo.soalab2.*;
 import org.ifmo.soalab2.model.*;
-import org.ifmo.soalab2.ProductRepository;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -315,7 +312,9 @@ public class ProductsApiServiceImpl {
             return Response.status(400).entity(new ApiResponseMessage("Неправильная структура продукта")).build();
         }
 
-        Product product = storage.addProduct(body);
+        //Product product = storage.addProduct(body);
+        Product product = productRepository.addProduct(body);
+
         return Response.ok().entity(product).build();
     }
 
@@ -368,6 +367,11 @@ public class ProductsApiServiceImpl {
         }
 
         return Response.ok().entity(removedProduct).build();
+    }
+
+    public Response insertSampleData() {
+        productRepository.insertSampleData();
+        return Response.ok().build();
     }
 
     public Response getAllProducts(List<String> sort, List<String> filter, @Min(0) Integer page, @Min(1) Integer pagesCount) throws NotFoundException {

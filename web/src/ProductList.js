@@ -36,7 +36,7 @@ const filterFields = [
 export async function productListLoader({request}) {
     const browserUrl = new URL(request.url);
 
-    const response = await fetch(`/products?${browserUrl.searchParams.toString()}`)
+    const response = await fetch(`/api/products?${browserUrl.searchParams.toString()}`)
     if (response.status !== 200) {
         return {isSuccess: false}
     }
