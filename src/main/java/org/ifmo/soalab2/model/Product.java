@@ -31,9 +31,9 @@ import java.util.Objects;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Entity(name = "products")
 public class Product implements OneOfProductsItems, Serializable {
-    private static int idCounter = 0;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
 
@@ -41,9 +41,13 @@ public class Product implements OneOfProductsItems, Serializable {
 
     @Embedded
     private ProductCoordinates coordinates;
+
+    //todo формат даты как в первой лабе
     private Date creationDate;
     private Float price;
     private Long manufactureCost;
+
+    @Column(name = "unitOfMeasure")
     private UnitOfMeasure unitOfMeasure;
 
     @ManyToOne
@@ -54,7 +58,6 @@ public class Product implements OneOfProductsItems, Serializable {
     }
 
     public Product(String name, ProductCoordinates coordinates, Date creationDate, Float price, Long manufactureCost, UnitOfMeasure unitOfMeasure, ProductOrganization organization) {
-        this.id = ++idCounter;
         this.name = name;
         this.coordinates = coordinates;
         this.creationDate = creationDate;
@@ -80,10 +83,6 @@ public class Product implements OneOfProductsItems, Serializable {
         this.id = id;
     }
 
-    public Product name(String name) {
-        this.name = name;
-        return this;
-    }
 
     /**
      * Get name
@@ -116,10 +115,6 @@ public class Product implements OneOfProductsItems, Serializable {
         this.coordinates = coordinates;
     }
 
-    public Product creationDate(Date creationDate) {
-        this.creationDate = creationDate;
-        return this;
-    }
 
     /**
      * Get creationDate

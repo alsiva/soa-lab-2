@@ -3,6 +3,7 @@ package org.ifmo.soalab2.firstService;
 
 import javax.validation.constraints.Min;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 //@Named
@@ -300,6 +302,63 @@ public class ProductsApiServiceImpl {
     @Inject
     ProductRepository productRepository;
 
+    @PostConstruct
+    public void addData() {
+        ProductOrganizationPostalAddress postalAddress = new ProductOrganizationPostalAddress("1018");
+        ProductOrganization organization = new ProductOrganization(1, "org", "sample org", 100.0f, ProductOrganization.OrgTypeEnum.COMMERCIAL, postalAddress);
+        ProductWithoutDate productWithoutDate = new ProductWithoutDate(
+                "Potato",    //        this.name = name;
+                new ProductCoordinates(67, 31),    //        this.coordinates = coordinates;
+                200.0f,    //        this.price = price;
+                200L,    //        this.manufactureCost = manufactureCost;
+                UnitOfMeasure.METERS,    //        this.unitOfMeasure = unitOfMeasure;
+                organization    //        this.organization = organization;
+        );
+        productRepository.addProduct(productWithoutDate);
+
+        ProductOrganizationPostalAddress postalAddress1 = new ProductOrganizationPostalAddress("2325");
+        ProductOrganization organization1 = new ProductOrganization(2, "org", "Tanya org", 3000.0f, ProductOrganization.OrgTypeEnum.TRUST, postalAddress1);
+        ProductWithoutDate productWithoutDate1 = new ProductWithoutDate(
+                "Pelmeni",    //        this.name = name;
+                new ProductCoordinates(23, 19),    //        this.coordinates = coordinates;
+                378.0f,    //        this.price = price;
+                129L,    //        this.manufactureCost = manufactureCost;
+                UnitOfMeasure.MILLILITERS,    //        this.unitOfMeasure = unitOfMeasure;
+                organization1    //        this.organization = organization;
+        );
+        productRepository.addProduct(productWithoutDate1);
+
+        ProductWithoutDate productWithoutDate2 = new ProductWithoutDate(
+                "Agusha",    //        this.name = name;
+                new ProductCoordinates(23, 19),    //        this.coordinates = coordinates;
+                378.0f,    //        this.price = price;
+                129L,    //        this.manufactureCost = manufactureCost;
+                UnitOfMeasure.MILLILITERS,    //        this.unitOfMeasure = unitOfMeasure;
+                organization1    //        this.organization = organization;
+        );
+        productRepository.addProduct(productWithoutDate2);
+
+        ProductWithoutDate productWithoutDate3 = new ProductWithoutDate(
+                "Beer",    //        this.name = name;
+                new ProductCoordinates(23, 19),    //        this.coordinates = coordinates;
+                378.0f,    //        this.price = price;
+                129L,    //        this.manufactureCost = manufactureCost;
+                UnitOfMeasure.MILLILITERS,    //        this.unitOfMeasure = unitOfMeasure;
+                organization1    //        this.organization = organization;
+        );
+        productRepository.addProduct(productWithoutDate3);
+
+        ProductWithoutDate productWithoutDate4 = new ProductWithoutDate(
+                "Condons",    //        this.name = name;
+                new ProductCoordinates(23, 19),    //        this.coordinates = coordinates;
+                378.0f,    //        this.price = price;
+                129L,    //        this.manufactureCost = manufactureCost;
+                UnitOfMeasure.MILLILITERS,    //        this.unitOfMeasure = unitOfMeasure;
+                organization1    //        this.organization = organization;
+        );
+        productRepository.addProduct(productWithoutDate4);
+    }
+
     public Response addProduct(ProductWithoutDate body) {
         if (
                 body.getName() == null ||
@@ -340,7 +399,7 @@ public class ProductsApiServiceImpl {
             return Response.status(400).entity(new ApiResponseMessage("ID должен быть неотрицательным, также не может быть строкой")).build();
         }
         // do some magic!
-        Product removedProduct = storage.removeProduct(productId);
+        Product removedProduct = productRepository.removeProduct(productId);
         if (removedProduct == null) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
         }
@@ -361,7 +420,7 @@ public class ProductsApiServiceImpl {
             return Response.status(400).entity(new ApiResponseMessage("Неверное значение manufactureCost")).build();
         }
 
-        Product removedProduct = storage.removeProduct(manufactureCost);
+        Product removedProduct = productRepository.removeProductByManufactureCost(manufactureCost);
         if (removedProduct == null) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
         }
@@ -374,7 +433,7 @@ public class ProductsApiServiceImpl {
         return Response.ok().build();
     }
 
-    public Response getAllProducts(List<String> sort, List<String> filter, @Min(0) Integer page, @Min(1) Integer pagesCount) throws NotFoundException {
+    public Response getAllProducts(List<String> sort, List<String> filter, Integer pageIndex, Integer pageSize) throws NotFoundException {
         List<SortingParams> sortingParams;
         try {
             sortingParams = SortingParams.parseSortingParams(sort);
@@ -395,6 +454,14 @@ public class ProductsApiServiceImpl {
         productList.sort(productCompositeComparator);
 
 
+        if (pageIndex != null && pageSize != null) {
+            if (pageIndex >= 0 && pageSize >= 1) {
+                final List<Product> finalProductList = productList;
+                productList = IntStream.range(0, productList.size()).filter(i ->
+                        pageSize * pageIndex <= i && i <= pageSize * (pageIndex + 1) - 1
+                ).mapToObj(finalProductList::get).collect(Collectors.toList());
+            }
+        }
         /*
         if (productList.isEmpty()) {
             return Response.status(404).entity(new ApiResponseMessage("Список продуктов пуст")).build();
@@ -411,7 +478,7 @@ public class ProductsApiServiceImpl {
             return Response.status(400).entity(new ApiResponseMessage("ID должен быть неотрицательным, также не может быть строкой")).build();
         }
 
-        Product product = storage.getProduct(productId);
+        Product product = productRepository.getProduct(productId);
         if (product == null) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
         }
@@ -421,7 +488,7 @@ public class ProductsApiServiceImpl {
 
     public Response getProductByMaxUnitOfMeasure() throws NotFoundException {
         // do some magic!
-        Product productWithMaxUnitOfMeasure = storage.getProductWithMaxUnitOfMaxUnitOfMeasure();
+        Product productWithMaxUnitOfMeasure = productRepository.getProductWithMaxUnitOfMeasure();
         if (productWithMaxUnitOfMeasure == null) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
         }
@@ -441,7 +508,9 @@ public class ProductsApiServiceImpl {
             return Response.status(400).entity(new ApiResponseMessage("Неверное значение AnnualTurnover")).build();
         }
 
-        List<Product> productList = storage.getProductListWithLessAnnualTurnover(annualTurnover);
+        List<Product> productList = productRepository.getProductListWithLessAnnualTurnover(annualTurnover);
+
+
         if (productList.isEmpty()) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
         }
@@ -463,7 +532,8 @@ public class ProductsApiServiceImpl {
             return Response.status(400).entity(new ApiResponseMessage("Неверные входные данные")).build();
         }
         // do some magic!
-        Product updatedProduct = storage.updateProductById(body, productId);
+        Product updatedProduct = productRepository.updateProductById(body, productId);
+
 
         if (updatedProduct == null) {
             return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();

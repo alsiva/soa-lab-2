@@ -70,66 +70,13 @@ public class ProductsApi {
 
     @GET
     @Produces({"application/xml"})
-    @Operation(summary = "Метод получения списка продуктов", description = "", tags = {"Product"})
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Успешный ответ со списком продуктов", content = @Content(mediaType = "application/xml", schema = @Schema(implementation = Products.class))),
-            @ApiResponse(responseCode = "400", description = "Вы должны были указать параметры сортировки и фильтрации в соответствии с требованиями, которые я вам указал"),
-            @ApiResponse(responseCode = "404", description = "Нет данного ресурса"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
-    })
     public Response getAllProducts(
-            @Parameter(
-                    in = ParameterIn.QUERY,
-                    description = "Массив полей для сортировки. \"!\" означает сортировку в обратном порядке",
-                    schema = @Schema(
-                            allowableValues = {
-                                    "product_id",
-                                    "name",
-                                    "coordinate_x",
-                                    "coordinate_y",
-                                    "creationDate",
-                                    "price",
-                                    "manufactureCost",
-                                    "unitOfMeasure",
-                                    "org_id",
-                                    "org_name",
-                                    "org_fullName",
-                                    "org_annualTurnover",
-                                    "org_type",
-                                    "postalAddress_zipcode",
-                                    "desc_product_id",
-                                    "desc_name",
-                                    "desc_coordinate_x",
-                                    "desc_coordinate_y",
-                                    "desc_creationDate",
-                                    "desc_price",
-                                    "desc_manufactureCost",
-                                    "desc_unitOfMeasure",
-                                    "desc_org_id",
-                                    "desc_org_name",
-                                    "desc_org_fullName",
-                                    "desc_org_annualTurnover",
-                                    "desc_org_type",
-                                    "desc_postalAddress_zipcode"
-                            }
-                    )
-            ) @QueryParam("sort") List<String> sort,
-            @Parameter(
-                    in = ParameterIn.QUERY,
-                    description = "Массив полей для фильтрации. Вы можете указать id, name, coordinates_x, coordinates_y, location_id, location_x, location_y, location_name, distance. После одного из этих полей вы указываете символ сравнения (==) (!=) (>) (<) (>=) (<=)."
-            ) @QueryParam("filter") List<String> filter,
-            @Parameter(
-                    in = ParameterIn.QUERY,
-                    description = "Обозначает номер страницы, которую вывести, при условии, что работает пагинация. Если параметр 'pagesCount' не указан, то по умолчанию количество страниц равно 5. Если оба параметра не указаны, то возвращается полный список.",
-                    schema = @Schema(allowableValues = {"0"})
-            ) @DefaultValue("1") @QueryParam("page") Integer page,
-            @Parameter(
-                    in = ParameterIn.QUERY,
-                    description = "Обозначает количество страниц, на которые произвести разбиение, при условии, что работает пагинация. Если параметр 'page' не указан, то по умолчанию отобразится 1-ая страница. Если оба параметра не указаны, то возвращается полный список.",
-                    schema = @Schema(allowableValues = {"1"}, minimum = "1")
-            ) @DefaultValue("5") @QueryParam("pagesCount") Integer pagesCount
+            @QueryParam("sort") List<String> sort,
+            @QueryParam("filter") List<String> filter,
+            @QueryParam("pageIndex") Integer pageIndex,
+            @QueryParam("pageSize") Integer pageSize
     ) throws org.ifmo.soalab2.NotFoundException {
-        return delegate.getAllProducts(sort, filter, page, pagesCount);
+        return delegate.getAllProducts(sort, filter, pageIndex, pageSize);
     }
 
     @GET

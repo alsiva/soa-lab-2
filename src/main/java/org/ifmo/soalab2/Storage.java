@@ -11,36 +11,7 @@ import java.util.*;
 public class Storage {
 
 
-    private final ProductOrganization tanyaOrganization = new ProductOrganization(
-            1,
-            "TanyaCo",
-            "TanyaCompany",
-            10000f,
-            ProductOrganization.OrgTypeEnum.COMMERCIAL,
-            new ProductOrganizationPostalAddress("3535")
-    );
-
-
-    private final List<Product> productList = new ArrayList<>(Arrays.asList(
-            new Product(
-                    "Pelmeni",
-                    new ProductCoordinates(10, 20),
-                    new Date(),
-                    500f,
-                    200L,
-                    UnitOfMeasure.METERS,
-                    tanyaOrganization
-            ),
-            new Product(
-                    "Pizza",
-                    new ProductCoordinates(10, 20),
-                    new Date(),
-                    500f,
-                    200L,
-                    UnitOfMeasure.METERS,
-                    tanyaOrganization
-            )
-    ));
+    private final List<Product> productList = new ArrayList<>();
 
     public Product addProduct(ProductWithoutDate productWithoutDate) {
         Product product = new Product(

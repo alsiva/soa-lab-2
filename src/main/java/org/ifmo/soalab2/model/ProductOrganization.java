@@ -62,7 +62,7 @@ public class ProductOrganization implements Serializable {
 
         OPEN_JOINT_STOCK_COMPANY("OPEN_JOINT_STOCK_COMPANY");
 
-        private String value;
+        private final String value;
 
         OrgTypeEnum(String value) {
             this.value = value;
@@ -117,10 +117,6 @@ public class ProductOrganization implements Serializable {
         this.orgId = orgId;
     }
 
-    public ProductOrganization name(String name) {
-        this.name = name;
-        return this;
-    }
 
     /**
      * Get name
@@ -156,11 +152,6 @@ public class ProductOrganization implements Serializable {
         this.fullName = fullName;
     }
 
-    public ProductOrganization annualTurnover(Float annualTurnover) {
-        this.annualTurnover = annualTurnover;
-        return this;
-    }
-
     /**
      * Get annualTurnover
      * minimum: 1
@@ -177,11 +168,6 @@ public class ProductOrganization implements Serializable {
         this.annualTurnover = annualTurnover;
     }
 
-    public ProductOrganization orgType(OrgTypeEnum orgType) {
-        this.orgType = orgType;
-        return this;
-    }
-
     /**
      * Get orgType
      *
@@ -194,11 +180,6 @@ public class ProductOrganization implements Serializable {
 
     public void setOrgType(OrgTypeEnum orgType) {
         this.orgType = orgType;
-    }
-
-    public ProductOrganization postalAddress(ProductOrganizationPostalAddress postalAddress) {
-        this.postalAddress = postalAddress;
-        return this;
     }
 
     /**

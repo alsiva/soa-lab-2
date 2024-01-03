@@ -1,6 +1,7 @@
 import {Link, useLoaderData, useSearchParams} from "react-router-dom";
 import {parseProducts} from "./parsing";
 import {
+    Alert,
     Box, Button,
     FormControl,
     InputLabel, Menu,
@@ -15,6 +16,8 @@ import {
     TextField
 } from "@mui/material";
 import React, {useState} from "react";
+import {serializeProduct} from "./serializing";
+import {sleep} from "./utils";
 
 
 const filterFields = [
@@ -50,10 +53,35 @@ export async function productListLoader({request}) {
 
 }
 
+
 export function ProductList() {
     const {isSuccess, products} = useLoaderData()
     const [showFilter, setShowFilter] = useState(false)
     const [_, setSearchParams] = useSearchParams();
+    const [loading, setIsLoading] = useState(false)
+    const [deleteStatus, setDeleteStatus] = useState(-1)
+
+    const [page, setPage] = useState({
+        pageIndex: null,
+        pageSize: null
+    })
+
+    async function deleteProduct(productId) {
+
+        setIsLoading(true)
+        const response = await fetch(`/api/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/xml'
+            },
+        })
+        setIsLoading(false)
+        setDeleteStatus(response.status)
+
+        if (response.status === 200) {
+
+        }
+    }
 
     function changeFilter(nextFilterName, nextOperator, nextValue) {
         setSearchParams(prev => {
@@ -89,6 +117,21 @@ export function ProductList() {
         })
     }
 
+    function changePagination(nextPageSize, nextPageIndex) {
+        setSearchParams(prev => {
+
+            if (nextPageSize >= 1 && nextPageIndex >= 0) {
+                prev.set('pageSize', nextPageSize)
+                prev.set('pageIndex', nextPageIndex)
+            } else {
+                prev.delete('pageSize')
+                prev.delete('pageIndex')
+            }
+
+            return prev
+        })
+    }
+
     return (
         <>
             {showFilter && (
@@ -102,6 +145,28 @@ export function ProductList() {
                             />
                         ))}
                     </div>
+                    <div>
+                        <label>Page index</label>
+                        <input type="number" onChange={event => {
+                            setPage(oldPage => ({
+                                ...oldPage,
+                                pageIndex: event.target.value
+                            }));
+
+                            changePagination(page.pageSize, event.target.value)
+                            // Call your function here
+                            // For example: yourFunctionAfterSetPage();
+                        }}/>
+                        <label>Page size</label>
+                        <input type="number" onChange={event => {
+                            setPage(oldPage => ({
+                                ...oldPage,
+                                pageSize: event.target.value
+                            }));
+                            changePagination(event.target.value, page.pageIndex)
+
+                        }}/>
+                    </div>
                     <div className="sortContainer">
                         <h1>Здесь будет будущая сортировка</h1>
                     </div>
@@ -109,15 +174,35 @@ export function ProductList() {
             )}
 
             <Button onClick={() => setShowFilter(!showFilter)}>Toggle filter</Button>
+
             {isSuccess === true
-                ? <ProductTableView products={products}></ProductTableView>
+                ? <>
+                    {(() => {
+                        if (deleteStatus === -1) {
+
+                        } else if (deleteStatus === 200) {
+                            return (
+                                <Alert severity="success">Продукт был удалён успешно</Alert>
+                            );
+                        } else if (deleteStatus === 404) {
+                            return (
+                                <Alert severity="warning">Не получилось удалить продукт</Alert>
+                            );
+                        } else {
+                            return (
+                                <Alert severity="error">Следующий статус {deleteStatus}</Alert>
+                            );
+                        }
+                    })()}
+                    <ProductTableView products={products} deleteProduct={deleteProduct}></ProductTableView>
+                </>
                 : <h1>Failed to fetch list of products</h1>
             }
         </>
     )
 }
 
-function ProductTableView({products}) {
+function ProductTableView({products, deleteProduct}) {
     if (products.length === 0) {
         return (
             <h2>Поиск не выдал подходящих продуктов. Попробуйте ослабить фильтрацию.</h2>
@@ -137,6 +222,7 @@ function ProductTableView({products}) {
                         <TableCell>ManufactureCost</TableCell>
                         <TableCell>UnitOfMeasure</TableCell>
                         <TableCell>Organization</TableCell>
+                        <TableCell>DeleteRow</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -154,6 +240,11 @@ function ProductTableView({products}) {
                             <TableCell>{product.manufactureCost}</TableCell>
                             <TableCell>{product.unitOfMeasure}</TableCell>
                             <TableCell>{product.organization.name}</TableCell>
+                            <TableCell>
+                                <Button variant="outlined" color="error" onClick={() => deleteProduct(product.id)}>
+                                    Удалить продукт
+                                </Button>
+                            </TableCell>
                         </TableRow>
                     )}
                 </TableBody>

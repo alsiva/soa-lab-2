@@ -9,9 +9,11 @@ import {
     createBrowserRouter,
     RouterProvider,
 } from "react-router-dom";
-import {SingleProduct, productLoader} from "./SingleProduct";
+import {UpdateProduct, productLoader} from "./UpdateProduct";
 import {ProductList, productListLoader} from "./ProductList";
 import {CreateProduct} from "./CreateProduct";
+import {ProductWithMaxUnitOfMeasure, productWithMaxUnitOfMeasureLoader} from "./ProductWithMaxUnitOfMeasure";
+import {ProductListWithLessAnnualTurnover, productListWithLessAnnualTurnoverLoader} from "./ProductListWithLessAnnualTurnover";
 
 const router = createBrowserRouter([
     {
@@ -30,7 +32,17 @@ const router = createBrowserRouter([
             {
                 path: "/products/:productId",
                 loader: productLoader,
-                element: <SingleProduct />
+                element: <UpdateProduct />
+            },
+            {
+                path: "products/max-measure",
+                loader: productWithMaxUnitOfMeasureLoader,
+                element: <ProductWithMaxUnitOfMeasure/>
+            },
+            {
+                path: "products/max-annual-turnover/:maxAnnualTurnover",
+                loader: productListWithLessAnnualTurnoverLoader,
+                element: <ProductListWithLessAnnualTurnover />
             }
         ]
     },
