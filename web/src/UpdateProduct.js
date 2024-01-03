@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import {serializeProduct} from "./serializing";
 import {SingleEditableProduct} from "./SingleEditableProduct";
 import {sleep} from "./utils";
+import {SERVICE_PREFIX} from "./index";
 
 export async function productLoader({params}) {
     const {productId} = params;
@@ -14,7 +15,7 @@ export async function productLoader({params}) {
         return {isSuccess: false, errorMsg: `invalid product id: ${productId}`}
     }
 
-    const response = await fetch(`/api/products/${productId}`)
+    const response = await fetch(`${SERVICE_PREFIX}/api/products/${productId}`)
 
     if (response.status === 404) {
         return {isSuccess: false, errorMsg: `No product with id ${productId}`}
@@ -34,7 +35,7 @@ export function UpdateProduct() {
 
         setIsLoading(true)
         await sleep(2000)
-        const response = await fetch(`/api/products/${nextProduct.id}`, {
+        const response = await fetch(`${SERVICE_PREFIX}/api/products/${nextProduct.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/xml'

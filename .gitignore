@@ -1,6 +1,6 @@
 /web/node_modules
 /out
-/target
+**/target
 /node_modules
-.idea
+/.idea
 /src/main/webapp

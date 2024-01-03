@@ -15,6 +15,9 @@ import {CreateProduct} from "./CreateProduct";
 import {ProductWithMaxUnitOfMeasure, productWithMaxUnitOfMeasureLoader} from "./ProductWithMaxUnitOfMeasure";
 import {ProductListWithLessAnnualTurnover, productListWithLessAnnualTurnoverLoader} from "./ProductListWithLessAnnualTurnover";
 
+export const SERVICE_PREFIX = `/service`
+export const EBAY_PREFIX = `/ebay`
+
 const router = createBrowserRouter([
     {
         path: "/",

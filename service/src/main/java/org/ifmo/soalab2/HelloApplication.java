@@ -10,6 +10,7 @@ import java.util.Date;
 @ApplicationPath("/api")
 public class HelloApplication extends Application {
 
+    /*
     private final static ProductOrganization tanyaOrganization = new ProductOrganization(
             1,
             "TanyaCo",
@@ -47,5 +48,5 @@ public class HelloApplication extends Application {
             entityManager.close();
             entityManagerFactory.close();
         }
-    }
+    }*/
 }

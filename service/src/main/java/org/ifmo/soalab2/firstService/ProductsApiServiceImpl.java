@@ -1,8 +1,6 @@
 package org.ifmo.soalab2.firstService;
 
 
-import javax.validation.constraints.Min;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -297,9 +295,6 @@ public class ProductsApiServiceImpl {
     }
 
     @Inject
-    Storage storage;
-
-    @Inject
     ProductRepository productRepository;
 
     @PostConstruct
@@ -371,7 +366,7 @@ public class ProductsApiServiceImpl {
             return Response.status(400).entity(new ApiResponseMessage("Неправильная структура продукта")).build();
         }
 
-        //Product product = storage.addProduct(body);
+
         Product product = productRepository.addProduct(body);
 
         return Response.ok().entity(product).build();

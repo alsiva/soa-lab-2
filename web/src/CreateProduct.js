@@ -3,6 +3,7 @@ import {getEmptyProduct, sleep} from "./utils";
 import {useState} from "react";
 import {Alert} from "@mui/material";
 import {SingleEditableProduct} from "./SingleEditableProduct";
+import {SERVICE_PREFIX} from "./index";
 
 
 export function CreateProduct() {
@@ -15,7 +16,7 @@ export function CreateProduct() {
 
         setIsLoading(true)
         await sleep(2000)
-        const response = await fetch(`/api/products/${nextProduct.id}`, {
+        const response = await fetch(`${SERVICE_PREFIX}/api/products/${nextProduct.id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/xml'

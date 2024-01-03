@@ -18,6 +18,7 @@ import {
 import React, {useState} from "react";
 import {serializeProduct} from "./serializing";
 import {sleep} from "./utils";
+import {SERVICE_PREFIX} from "./index";
 
 
 const filterFields = [
@@ -39,7 +40,7 @@ const filterFields = [
 export async function productListLoader({request}) {
     const browserUrl = new URL(request.url);
 
-    const response = await fetch(`/api/products?${browserUrl.searchParams.toString()}`)
+    const response = await fetch(`${SERVICE_PREFIX}/api/products?${browserUrl.searchParams.toString()}`)
     if (response.status !== 200) {
         return {isSuccess: false}
     }
@@ -69,7 +70,7 @@ export function ProductList() {
     async function deleteProduct(productId) {
 
         setIsLoading(true)
-        const response = await fetch(`/api/products/${productId}`, {
+        const response = await fetch(`${SERVICE_PREFIX}/api/products/${productId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/xml'

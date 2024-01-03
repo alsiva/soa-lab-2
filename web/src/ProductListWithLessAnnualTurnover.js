@@ -2,25 +2,26 @@ import {parseProducts} from "./parsing";
 import {Link, useLoaderData} from "react-router-dom";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import React from "react";
+import {SERVICE_PREFIX} from "./index";
 
 export async function productListWithLessAnnualTurnoverLoader(request) {
     let maxAnnualTurnover = request.params.maxAnnualTurnover
-    const response = await fetch(`api/products/max-annual-turnover/${maxAnnualTurnover}`)
+
+    const response = await fetch(`${SERVICE_PREFIX}/api/products/max-annual-turnover/${maxAnnualTurnover}`)
     if (response.status !== 200) {
         return {isSuccess: false, errorMsg: response.statusText}
     }
-    console.log(response)
 
     const text = await response.text()
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, "application/xml");
     const productArray = parseProducts(doc);
 
-    return {isSuccess: true, products: productArray}
+    return { isSuccess: true, products: productArray }
 }
 
 export function ProductListWithLessAnnualTurnover() {
-    const {isSuccess, errorMsg, productList} = useLoaderData()
+    const {isSuccess, errorMsg, products} = useLoaderData()
 
     if (!isSuccess) {
         return (
@@ -28,7 +29,7 @@ export function ProductListWithLessAnnualTurnover() {
         )
     }
 
-    if (productList.length === 0) {
+    if (products.length === 0) {
         return (
             <h2>Поиск не выдал подходящих продуктов. Попробуйте ослабить фильтрацию.</h2>
         )
@@ -50,7 +51,7 @@ export function ProductListWithLessAnnualTurnover() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {productList.map(product =>
+                    {products.map(product =>
                         <TableRow
                             key={product.id}
                             sx={{'&:last-child td, &:last-child th': {border: 0}}}

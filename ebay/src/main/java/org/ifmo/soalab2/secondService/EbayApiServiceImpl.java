@@ -8,7 +8,6 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.ifmo.soalab2.ApiResponseMessage;
-import org.ifmo.soalab2.Storage;
 import org.ifmo.soalab2.model.Product;
 import org.ifmo.soalab2.model.Products;
 import org.ifmo.soalab2.model.UnitOfMeasure;
@@ -18,6 +17,7 @@ import javax.net.ssl.TrustManagerFactory;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Named
@@ -44,8 +44,6 @@ public class EbayApiServiceImpl {
                 .build();
     }
 
-    @Inject
-    Storage storage;
 
     public Response getProductsWithRange(String rangeFromString, String rangeToString) {
         Client client;
@@ -58,7 +56,7 @@ public class EbayApiServiceImpl {
         }
 
         String clientUrl = new StringBuilder()
-                .append("http://localhost:8080/soaLab2")
+                .append("http://localhost:8080/service")
                 .append("/api/products")
                 .append("?filter=price-gte-")
                 .append(rangeFromString) // todo: format
@@ -118,7 +116,7 @@ public class EbayApiServiceImpl {
         } catch (IllegalArgumentException e) {
             return Response.status(400).entity(new ApiResponseMessage("Неправильные входные параметры")).build();
         }
-        List<Product> productList = storage.getProductList();
+        List<Product> productList = Arrays.asList(); // fixme
         List<Product> productListToBeRemoved = new ArrayList<>();
         for (Product product: productList) {
             if (product.getUnitOfMeasure() != unitOfMeasure) {

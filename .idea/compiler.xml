@@ -6,7 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="soa-lab-2" />
+        <module name="common" />
+        <module name="ebay" />
+        <module name="service" />
       </profile>
     </annotationProcessing>
   </component>
