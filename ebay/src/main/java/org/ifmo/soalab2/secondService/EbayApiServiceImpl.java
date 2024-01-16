@@ -116,19 +116,39 @@ public class EbayApiServiceImpl {
         } catch (IllegalArgumentException e) {
             return Response.status(400).entity(new ApiResponseMessage("Неправильные входные параметры")).build();
         }
-        List<Product> productList = Arrays.asList(); // fixme
-        List<Product> productListToBeRemoved = new ArrayList<>();
-        for (Product product: productList) {
-            if (product.getUnitOfMeasure() != unitOfMeasure) {
-                productListToBeRemoved.add(product);
-            }
-        }
-        productList.removeAll(productListToBeRemoved);
-        if (productList.isEmpty()) {
-            return Response.status(404).entity(new ApiResponseMessage("Нет данного ресурса")).build();
+
+        //Start of inserted code
+        Client client;
+        try {
+            client = createClient();
+        } catch (Exception e) {
+            return Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .build();
         }
 
-        Products products = new Products(productList);
-        return Response.ok().entity(products).build();
+        String clientUrl = new StringBuilder()
+                .append("http://localhost:8080/service")
+                .append("/api/products")
+                .append("?filter=unitOfMeasure-eq-")
+                .append(unitOfMeasureAsString) // todo: format
+                .toString();
+
+        Response response = client.target(clientUrl)
+                .request(MediaType.APPLICATION_XML)
+                .get();
+
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
+
+        Products products = response.readEntity(Products.class);
+
+        return Response.status(Response.Status.OK)
+                .entity(products)
+                .build();
+        //End of inserted code
     }
 }

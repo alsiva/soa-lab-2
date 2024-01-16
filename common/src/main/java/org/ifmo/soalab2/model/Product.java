@@ -33,7 +33,7 @@ import java.util.Objects;
 public class Product implements OneOfProductsItems, Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
 
