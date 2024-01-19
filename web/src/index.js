@@ -18,9 +18,11 @@ import {ProductListWithLessAnnualTurnover, productListWithLessAnnualTurnoverLoad
 export const SERVICE_PREFIX = `/service`
 export const EBAY_PREFIX = `/ebay`
 
+export const FRONTEND_PREFIX = `/web`
+
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: FRONTEND_PREFIX,
         element: <App/>,
         children: [
             {
@@ -29,11 +31,11 @@ const router = createBrowserRouter([
                 element: <ProductList/>
             },
             {
-                path: "/products/new",
+                path: "products/new",
                 element: <CreateProduct />
             },
             {
-                path: "/products/:productId",
+                path: "products/:productId",
                 loader: productLoader,
                 element: <UpdateProduct />
             },
