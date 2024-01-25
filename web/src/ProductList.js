@@ -278,11 +278,7 @@ export function ProductList() {
                                 pageSize: event.target.value
                             }));
                             changePagination(event.target.value, page.pageIndex)
-
                         }}/>
-                    </div>
-                    <div className="sortContainer">
-                        <h1>Здесь будет будущая сортировка</h1>
                     </div>
                 </div>
             )}
