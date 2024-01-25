@@ -3,15 +3,18 @@ import {Box, Button, CardContent, CardHeader, CircularProgress, TextField, Typog
 import Card from "@mui/material/Card";
 import dayjs from "dayjs";
 
+
+export const unitOfMeasureEnum = {
+    METERS: "METERS",
+    SQUARE_METERS: "SQUARE_METERS",
+    PCS: "PCS",
+    MILLILITERS: "MILLILITERS",
+    MILLIGRAMS: "MILLIGRAMS"
+}
+
 export function SingleEditableProduct({product, callback, isLoading, buttonText}) {
 
-    const unitOfMeasureEnum = {
-        METERS: "METERS",
-        SQUARE_METERS: "SQUARE_METERS",
-        PCS: "PCS",
-        MILLILITERS: "MILLILITERS",
-        MILLIGRAMS: "MILLIGRAMS"
-    }
+
 
     const orgType = {
         COMMERCIAL: "COMMERCIAL",

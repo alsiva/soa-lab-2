@@ -18,7 +18,7 @@ import {
 import React, {useState} from "react";
 import {serializeProduct} from "./serializing";
 import {sleep} from "./utils";
-import {SERVICE_PREFIX} from "./index";
+import {EBAY_PREFIX, SERVICE_PREFIX} from "./index";
 
 
 const filterFields = [
@@ -37,6 +37,37 @@ const filterFields = [
     "postalAddress_zipcode"
 ]
 
+const sortFields = [
+    "product_id",
+    "name",
+    "coordinate_x",
+    "coordinate_y",
+    "creationDate",
+    "price",
+    "manufactureCost",
+    "unitOfMeasure",
+    "org_id",
+    "org_name",
+    "org_fullName",
+    "org_annualTurnover",
+    "org_type",
+    "postalAddress_zipcode",
+    "desc_product_id",
+    "desc_name",
+    "desc_coordinate_x",
+    "desc_coordinate_y",
+    "desc_creationDate",
+    "desc_price",
+    "desc_manufactureCost",
+    "desc_unitOfMeasure",
+    "desc_org_id",
+    "desc_org_name",
+    "desc_org_fullName",
+    "desc_org_annualTurnover",
+    "desc_org_type",
+    "desc_postalAddress_zipcode"
+]
+
 export async function productListLoader({request}) {
     const browserUrl = new URL(request.url);
 
@@ -52,6 +83,41 @@ export async function productListLoader({request}) {
 
     return {isSuccess: true, products: productArray}
 
+}
+
+export async function productListWithPriceRangeLoader({request}) {
+    const browserUrl = new URL(request.url);
+    const min = browserUrl.toString().split('/').slice(-2)[0]
+    const max = browserUrl.toString().split('/').slice(-2)[1]
+
+    const response = await fetch(`${EBAY_PREFIX}/api/filter/price/${min}/${max}`)
+    if (response.status !== 200) {
+        return {isSuccess: false}
+    }
+
+    const text = await response.text()
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "application/xml");
+    const productArray = parseProducts(doc);
+
+    return {isSuccess: true, products: productArray}
+}
+
+export async function productListWithUnitOfMeasureLoader({request}) {
+    const browserUrl = new URL(request.url);
+    console.log(browserUrl.searchParams.toString())
+
+    const response = await fetch(`${EBAY_PREFIX}/api/filter/unit-of-measure/METERS`)
+    if (response.status !== 200) {
+        return {isSuccess: false}
+    }
+
+    const text = await response.text()
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "application/xml");
+    const productArray = parseProducts(doc);
+
+    return {isSuccess: true, products: productArray}
 }
 
 
@@ -88,6 +154,8 @@ export function ProductList() {
         setSearchParams(prev => {
             const currentFilters = prev.getAll('filter')
 
+            console.log(currentFilters)
+
             const filterMap = new Map()
             for (const filter of currentFilters) {
                 const [currentFilterName, operator, filterValue] = filter.split('-', 3)
@@ -118,6 +186,40 @@ export function ProductList() {
         })
     }
 
+    function changeSort(nextSortOperator, desc) {
+        setSearchParams(prev => {
+            const currentSort = prev.getAll('sort')
+            //Вернёт массив
+            console.log(`Current sort is\n${currentSort}`)
+
+            //Первое что нужно сделать это найти повторения и удалить их
+            let next_sort = []
+            for (const sort of currentSort) {
+                const usual_sort = sort.replace("desc_", "")
+                const usual_next_sort = nextSortOperator.replace("desc_", "")
+                if (usual_sort !== usual_next_sort) {
+                    next_sort.push(sort)
+                }
+            }
+
+            if (desc !== null) {
+                if (desc) {
+                    next_sort.push(`desc_${nextSortOperator}`)
+                } else if (!desc) {
+                    next_sort.push(`${nextSortOperator}`)
+                }
+            }
+            console.log(next_sort)
+
+            prev.delete('sort')
+            for (const sort of next_sort) {
+                prev.append('sort' ,sort)
+            }
+
+            return prev
+        })
+    }
+
     function changePagination(nextPageSize, nextPageIndex) {
         setSearchParams(prev => {
 
@@ -133,6 +235,7 @@ export function ProductList() {
         })
     }
 
+
     return (
         <>
             {showFilter && (
@@ -145,6 +248,16 @@ export function ProductList() {
                                 field={filterField}
                             />
                         ))}
+                    </div>
+                    <div>
+                        {sortFields.map((sortElement, index) => {
+                            if (index < sortFields.length / 2) {
+                                return (
+                                    <SingleSort sortElement={sortElement} changeFunc={changeSort}></SingleSort>
+                                )
+                            }
+
+                        })}
                     </div>
                     <div>
                         <label>Page index</label>
@@ -299,5 +412,42 @@ function SingleFilter({changeFunc, field}) {
             <TextField id={field} label={field} size="small" variant="outlined" onChange={handleValueChange}/>
         </div>
     );
+}
+
+function SingleSort({sortElement, changeFunc}) {
+
+    const [desc, setDesc] = useState(null);
+
+
+    const handleValueChange = (event) => {
+        setDesc(event.target.value);
+        changeFunc(sortElement, event.target.value)
+    };
+
+
+    const id = `operator-label-${sortElement}`
+
+    return (
+        <div>
+            <FormControl fullWidth>
+                <InputLabel id={id}>Operator</InputLabel>
+                <Select
+                    labelId={id}
+                    id={id}
+                    value={desc}
+                    label={sortElement}
+                    size="small"
+                    onChange={handleValueChange}
+                >
+                    <MenuItem value={null}>None</MenuItem>
+                    <MenuItem value={false}>Normal</MenuItem>
+                    <MenuItem value={true}>Desc</MenuItem>
+                </Select>
+            </FormControl>
+            <div>{sortElement}</div>
+
+        </div>
+    )
+
 }
 
