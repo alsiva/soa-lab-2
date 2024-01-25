@@ -45,8 +45,10 @@
 }
 
 .filterAndSortContainer {
-    display: flex;
-    justify-content: space-around;
+    display: block;
+}
+.unselected-filters {
+    margin: 12px;
 }
 
 .singleFilter {

@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 @ApplicationScoped
 public class ProductsApiServiceImpl {
 
-    private final static String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|price|manufactureCost|unitOfMeasure|org_id|org_name|org_fullName|org_annualTurnover|org_type|postalAddress_zipcode)-(eq|nq|gt|lt|gte|lte)-(.+)";
+    private final static String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|price|manufactureCost|unitOfMeasure|org_id|org_name|org_fullName|org_annualTurnover|org_type|postalAddress_zipcode)-(eq|nq|gt|lt|gte|lte)-(.*)";
     private final static Pattern filterPattern = Pattern.compile(filterRegex);
 
 
@@ -59,6 +59,10 @@ public class ProductsApiServiceImpl {
                     value = expressionMatcher.group(3);
                 } else {
                     throw new IllegalArgumentException("Фильтр должен иметь структуру <поле>-<оператор>-<значение>, вместо этого: " + filter);
+                }
+
+                if (value.trim().isEmpty()) {
+                    continue;
                 }
 
                 switch (field) {

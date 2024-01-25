@@ -2,7 +2,7 @@ import {Link, useLoaderData, useSearchParams} from "react-router-dom";
 import {parseProducts} from "./parsing";
 import {
     Alert,
-    Box, Button,
+    Box, Button, ButtonGroup, Chip,
     FormControl,
     InputLabel, Menu,
     MenuItem,
@@ -104,9 +104,6 @@ export async function productListWithPriceRangeLoader({request}) {
 }
 
 export async function productListWithUnitOfMeasureLoader({request}) {
-    const browserUrl = new URL(request.url);
-    console.log(browserUrl.searchParams.toString())
-
     const response = await fetch(`${EBAY_PREFIX}/api/filter/unit-of-measure/METERS`)
     if (response.status !== 200) {
         return {isSuccess: false}
@@ -121,10 +118,23 @@ export async function productListWithUnitOfMeasureLoader({request}) {
 }
 
 
+function parseFilterMap(currentFilters) {
+    const filterMap = new Map()
+    for (const filter of currentFilters) {
+        const [currentFilterName, operator, filterValue] = filter.split('-', 3)
+
+        filterMap.set(currentFilterName, {
+            operator,
+            filterValue,
+        })
+    }
+    return filterMap;
+}
+
 export function ProductList() {
     const {isSuccess, products} = useLoaderData()
     const [showFilter, setShowFilter] = useState(false)
-    const [_, setSearchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [loading, setIsLoading] = useState(false)
     const [deleteStatus, setDeleteStatus] = useState(-1)
 
@@ -133,8 +143,10 @@ export function ProductList() {
         pageSize: null
     })
 
-    async function deleteProduct(productId) {
+    const currentFilterMap = parseFilterMap(searchParams.getAll('filter'));
+    const unselectedFilters = filterFields.filter(field => !currentFilterMap.has(field))
 
+    async function deleteProduct(productId) {
         setIsLoading(true)
         const response = await fetch(`${SERVICE_PREFIX}/api/products/${productId}`, {
             method: 'DELETE',
@@ -150,36 +162,15 @@ export function ProductList() {
         }
     }
 
-    function changeFilter(nextFilterName, nextOperator, nextValue) {
+    function updateFilterInUrl(filterMap) {
         setSearchParams(prev => {
-            const currentFilters = prev.getAll('filter')
-
-            console.log(currentFilters)
-
-            const filterMap = new Map()
-            for (const filter of currentFilters) {
-                const [currentFilterName, operator, filterValue] = filter.split('-', 3)
-                filterMap.set(currentFilterName, {
-                    operator,
-                    filterValue,
-                })
-            }
-
-            if (nextValue === '' || nextOperator === null || nextOperator === '') {
-                filterMap.delete(nextFilterName)
-            } else {
-                filterMap.set(nextFilterName, {
-                    operator: nextOperator,
-                    filterValue: nextValue
-                })
-            }
-
             prev.delete('filter')
+
             for (const entry of filterMap.entries()) {
                 const [filterName, filterOpAndValue] = entry;
                 const {operator, filterValue} = filterOpAndValue;
 
-                prev.append('filter', `${filterName}-${operator}-${filterValue}`)
+                prev.append('filter', `${filterName}-${operator}-${filterValue.trim()}`)
             }
 
             return prev
@@ -240,12 +231,46 @@ export function ProductList() {
         <>
             {showFilter && (
                 <div className="filterAndSortContainer">
-                    <div className="filterContainer">
-                        {filterFields.map(filterField => (
-                            <SingleFilter
-                                key={filterField}
-                                changeFunc={changeFilter}
-                                field={filterField}
+                    <div className="unselected-filters">
+                        <h3>Add filters:</h3>
+                        {unselectedFilters.map(filter => (
+                            <Chip key={filter} label={filter} onClick={() => {
+                                const nextFilterMap = new Map(currentFilterMap)
+                                nextFilterMap.set(filter, {
+                                    operator: 'eq',
+                                    filterValue: '',
+                                })
+                                updateFilterInUrl(nextFilterMap)
+                            }} />
+                        ))}
+                    </div>
+                    <div>
+                        {Array.from(currentFilterMap).map(([filter, { operator, filterValue }]) => (
+                            <SingleFilterControlled
+                                key={filter}
+                                field={filter}
+                                operator={operator}
+                                handleOperatorChange={nextOp => {
+                                    const nextFilterMap = new Map(currentFilterMap);
+                                    nextFilterMap.set(filter, {
+                                        operator: nextOp,
+                                        filterValue: filterValue,
+                                    });
+                                    updateFilterInUrl(nextFilterMap);
+                                }}
+                                handleValueChange={nextVal => {
+                                    const nextFilterMap = new Map(currentFilterMap);
+                                    nextFilterMap.set(filter, {
+                                        operator: operator,
+                                        filterValue: nextVal,
+                                    });
+                                    updateFilterInUrl(nextFilterMap);
+                                }}
+                                handleDelete={() => {
+                                    const nextFilterMap = new Map(currentFilterMap)
+                                    nextFilterMap.delete(filter)
+                                    updateFilterInUrl(nextFilterMap)
+                                }}
                             />
                         ))}
                     </div>
@@ -256,7 +281,6 @@ export function ProductList() {
                                     <SingleSort sortElement={sortElement} changeFunc={changeSort}></SingleSort>
                                 )
                             }
-
                         })}
                     </div>
                     <div>
@@ -364,27 +388,12 @@ function ProductTableView({products, deleteProduct}) {
     )
 }
 
-function SingleFilter({changeFunc, field}) {
-    const [operator, setOperator] = useState(null);
-    const [value, setValue] = useState(null)
-
-    const handleOperatorChange = (event) => {
-        setOperator(event.target.value);
-        changeFunc(field, event.target.value, value)
-    };
-
-    const handleValueChange = (event) => {
-        setValue(event.target.value);
-        changeFunc(field, operator, event.target.value)
-    };
-
+function SingleFilterControlled({field, operator, handleOperatorChange, handleValueChange, handleDelete}) {
     const id = `operator-label-${field}`
 
     return (
         <div className="singleFilter">
-            <div>
-                {field}
-            </div>
+            <div>{field}</div>
 
             <FormControl fullWidth>
                 <InputLabel id={id}>Operator</InputLabel>
@@ -394,9 +403,10 @@ function SingleFilter({changeFunc, field}) {
                     value={operator}
                     label={field}
                     size="small"
-                    onChange={handleOperatorChange}
+                    onChange={e => {
+                        handleOperatorChange(e.target.value);
+                    }}
                 >
-                    <MenuItem value={null}>None</MenuItem>
                     <MenuItem value={'eq'}>Equals</MenuItem>
                     <MenuItem value={'nq'}>Not equals</MenuItem>
                     <MenuItem value={'gt'}>Greater than</MenuItem>
@@ -405,7 +415,16 @@ function SingleFilter({changeFunc, field}) {
                     <MenuItem value={'lte'}>Lower than or equals</MenuItem>
                 </Select>
             </FormControl>
-            <TextField id={field} label={field} size="small" variant="outlined" onChange={handleValueChange}/>
+            <TextField
+                id={field}
+                label={field}
+                size="small"
+                variant="outlined"
+                onChange={e => {
+                    handleValueChange(e.target.value)
+                }}
+            />
+            <Button variant="outlined" color="error" onClick={handleDelete}>Delete</Button>
         </div>
     );
 }
