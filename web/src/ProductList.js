@@ -367,7 +367,7 @@ function ProductTableView({products, deleteProduct}) {
                         >
                             <TableCell>{product.id}</TableCell>
                             <TableCell>
-                                <Link to={product.id.toString()}>{product.name}</Link>
+                                <Link to={`/web/service/products/${product.id}`}>{product.name}</Link>
                             </TableCell>
                             <TableCell>({product.coordinates.x}, {product.coordinates.y})</TableCell>
                             <TableCell>{product.price}</TableCell>
