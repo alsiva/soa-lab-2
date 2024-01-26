@@ -2,9 +2,10 @@ import {Link, useLoaderData, useSearchParams} from "react-router-dom";
 import {parseProducts} from "./parsing";
 import {
     Alert,
-    Box, Button, ButtonGroup, Chip,
+    Button,
+    Chip,
     FormControl,
-    InputLabel, Menu,
+    InputLabel,
     MenuItem,
     Select,
     Table,
@@ -16,8 +17,6 @@ import {
     TextField
 } from "@mui/material";
 import React, {useState} from "react";
-import {serializeProduct} from "./serializing";
-import {sleep} from "./utils";
 import {EBAY_PREFIX, SERVICE_PREFIX} from "./index";
 
 
@@ -131,6 +130,9 @@ function parseFilterMap(currentFilters) {
     return filterMap;
 }
 
+const PAGE_SIZE_URL_PARAM = 'pageSize'
+const PAGE_INDEX_URL_PARAM = 'pageIndex'
+
 export function ProductList() {
     const {isSuccess, products} = useLoaderData()
     const [showFilter, setShowFilter] = useState(false)
@@ -138,10 +140,8 @@ export function ProductList() {
     const [loading, setIsLoading] = useState(false)
     const [deleteStatus, setDeleteStatus] = useState(-1)
 
-    const [page, setPage] = useState({
-        pageIndex: null,
-        pageSize: null
-    })
+    const pageIndex = searchParams.get(PAGE_INDEX_URL_PARAM)
+    const pageSize = searchParams.get(PAGE_SIZE_URL_PARAM);
 
     const currentFilterMap = parseFilterMap(searchParams.getAll('filter'));
     const unselectedFilters = filterFields.filter(field => !currentFilterMap.has(field))
@@ -211,22 +211,6 @@ export function ProductList() {
         })
     }
 
-    function changePagination(nextPageSize, nextPageIndex) {
-        setSearchParams(prev => {
-
-            if (nextPageSize >= 1 && nextPageIndex >= 0) {
-                prev.set('pageSize', nextPageSize)
-                prev.set('pageIndex', nextPageIndex)
-            } else {
-                prev.delete('pageSize')
-                prev.delete('pageIndex')
-            }
-
-            return prev
-        })
-    }
-
-
     return (
         <>
             {showFilter && (
@@ -250,6 +234,7 @@ export function ProductList() {
                                 key={filter}
                                 field={filter}
                                 operator={operator}
+                                value={filterValue}
                                 handleOperatorChange={nextOp => {
                                     const nextFilterMap = new Map(currentFilterMap);
                                     nextFilterMap.set(filter, {
@@ -285,23 +270,36 @@ export function ProductList() {
                     </div>
                     <div>
                         <label>Page index</label>
-                        <input type="number" onChange={event => {
-                            setPage(oldPage => ({
-                                ...oldPage,
-                                pageIndex: event.target.value
-                            }));
+                        <input type="number" value={pageIndex} onChange={event => {
+                            const nextPageIndex = Number(event.target.value.trim());
 
-                            changePagination(page.pageSize, event.target.value)
-                            // Call your function here
-                            // For example: yourFunctionAfterSetPage();
+                            if (Number.isNaN(nextPageIndex) || nextPageIndex <= 0) {
+                                setSearchParams(prev => {
+                                    prev.delete(PAGE_INDEX_URL_PARAM)
+                                    return prev
+                                })
+                            } else {
+                                setSearchParams(prev => {
+                                    prev.set(PAGE_INDEX_URL_PARAM, nextPageIndex.toString())
+                                    return prev
+                                })
+                            }
                         }}/>
                         <label>Page size</label>
-                        <input type="number" onChange={event => {
-                            setPage(oldPage => ({
-                                ...oldPage,
-                                pageSize: event.target.value
-                            }));
-                            changePagination(event.target.value, page.pageIndex)
+                        <input type="number" value={pageSize} onChange={event => {
+                            const nextPageSize = Number(event.target.value.trim());
+
+                            if (Number.isNaN(nextPageSize) || nextPageSize <= 0) {
+                                setSearchParams(prev => {
+                                    prev.delete(PAGE_SIZE_URL_PARAM)
+                                    return prev
+                                })
+                            } else {
+                                setSearchParams(prev => {
+                                    prev.set(PAGE_SIZE_URL_PARAM, nextPageSize.toString())
+                                    return prev
+                                })
+                            }
                         }}/>
                     </div>
                 </div>
@@ -388,7 +386,7 @@ function ProductTableView({products, deleteProduct}) {
     )
 }
 
-function SingleFilterControlled({field, operator, handleOperatorChange, handleValueChange, handleDelete}) {
+function SingleFilterControlled({field, operator, handleOperatorChange, value, handleValueChange, handleDelete}) {
     const id = `operator-label-${field}`
 
     return (
@@ -419,6 +417,7 @@ function SingleFilterControlled({field, operator, handleOperatorChange, handleVa
                 id={field}
                 label={field}
                 size="small"
+                value={value}
                 variant="outlined"
                 onChange={e => {
                     handleValueChange(e.target.value)
