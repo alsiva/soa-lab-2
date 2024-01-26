@@ -42,6 +42,20 @@ export function CreateProduct() {
                         return (
                             <Alert severity="warning">Не получилось обновить продукт</Alert>
                         );
+                    } else if (status === 405) {
+                        return (
+                            <div>
+                                <Alert severity="error">Егор Дмитриевич натыкал, ввёл продукт с неверными данными</Alert>
+                                <Alert severity="warning">А теперь стишок</Alert>
+                                <Alert severity="success">
+                                    <div>Маленький ёжик бежит и хохочет</div>
+                                    <div>Ёжику травка пипиську щекочет</div>
+                                    <div>Травка закончилась гравий пошёл</div>
+                                    <div>Ёжик домой без пиписьки пришёл</div>
+                                </Alert>
+                            </div>
+
+                        );
                     } else {
                         return (
                             <Alert severity="error">Следующий статус {status}</Alert>
@@ -49,7 +63,8 @@ export function CreateProduct() {
                     }
                 })()}
             </div>
-            <SingleEditableProduct buttonText={"Создать продукт"} product={getEmptyProduct} callback={addProduct} isLoading={isLoading}></SingleEditableProduct>
+            <SingleEditableProduct buttonText={"Создать продукт"} product={getEmptyProduct} callback={addProduct}
+                                   isLoading={isLoading}></SingleEditableProduct>
         </>
     )
 }

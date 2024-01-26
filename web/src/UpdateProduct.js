@@ -71,6 +71,21 @@ export function UpdateProduct() {
                         return (
                             <Alert severity="warning">Не получилось обновить продукт</Alert>
                         );
+
+                    } else if (status === 400) {
+                        return (
+                            <div>
+                                <Alert severity="error">Егор Дмитриевич натыкал, ввёл продукт с неверными
+                                    данными</Alert>
+                                <Alert severity="warning">А теперь стишок</Alert>
+                                <Alert severity="success">
+                                    <div>Roses are red</div>
+                                    <div>Violets are blue</div>
+                                    <div>Egor Dmitrievich</div>
+                                    <div>This text is for you</div>
+                                </Alert>
+                            </div>
+                        )
                     } else {
                         return (
                             <Alert severity="error">Следующий статус {status}</Alert>
@@ -78,7 +93,8 @@ export function UpdateProduct() {
                     }
                 })()}
             </div>
-            <SingleEditableProduct buttonText={"Изменить продукт"} product={product} callback={updateProduct} isLoading={isLoading}></SingleEditableProduct>
+            <SingleEditableProduct buttonText={"Изменить продукт"} product={product} callback={updateProduct}
+                                   isLoading={isLoading}></SingleEditableProduct>
         </>
     )
 }

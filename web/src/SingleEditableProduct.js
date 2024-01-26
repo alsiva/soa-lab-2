@@ -12,17 +12,16 @@ export const unitOfMeasureEnum = {
     MILLIGRAMS: "MILLIGRAMS"
 }
 
+const orgType = {
+    COMMERCIAL: "COMMERCIAL",
+    GOVERNMENT: "GOVERNMENT",
+    TRUST: "TRUST",
+    PRIVATE_LIMITED_COMPANY: "PRIVATE_LIMITED_COMPANY",
+    OPEN_JOINT_STOCK_COMPANY: "OPEN_JOINT_STOCK_COMPANY"
+}
+
 export function SingleEditableProduct({product, callback, isLoading, buttonText}) {
 
-
-
-    const orgType = {
-        COMMERCIAL: "COMMERCIAL",
-        GOVERNMENT: "GOVERNMENT",
-        TRUST: "TRUST",
-        PRIVATE_LIMITED_COMPANY: "PRIVATE_LIMITED_COMPANY",
-        OPEN_JOINT_STOCK_COMPANY: "OPEN_JOINT_STOCK_COMPANY"
-    }
 
     const [productState, setProductState] = useState(product)
 
@@ -98,13 +97,20 @@ export function SingleEditableProduct({product, callback, isLoading, buttonText}
                                                                  annualTurnover: field.target.value
                                                              }
                                                          }))}/> <br/>
-                                OrgType -- <input value={productState.organization.orgType}
-                                                  onChange={field => setProductState(prev => ({
-                                                      ...prev, organization: {
-                                                          ...prev.organization,
-                                                          orgType: field.target.value
-                                                      }
-                                                  }))}/> <br/>
+                                OrgType -- <select value={productState.organization.orgType}
+                                        onChange={field => setProductState(prev => ({
+                                            ...prev, organization: {
+                                                ...prev.organization,
+                                                orgType: field.target.value
+                                            }
+                                        }))}>
+                                    <option value={orgType.COMMERCIAL}>COMMERCIAL</option>
+                                    <option value={orgType.TRUST}>TRUST</option>
+                                    <option value={orgType.GOVERNMENT}>GOVERNMENT</option>
+                                    <option value={orgType.OPEN_JOINT_STOCK_COMPANY}>OPEN_JOINT_STOCK_COMPANY</option>
+                                    <option value={orgType.PRIVATE_LIMITED_COMPANY}>PRIVATE_LIMITED_COMPANY</option>
+                                </select>
+                                <br/>
                                 PostalAddress -- <input value={productState.organization.postalAddress.zipcode}
                                                         onChange={field => setProductState(prev => ({
                                                             ...prev, organization: {
