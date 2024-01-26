@@ -159,7 +159,7 @@ export function ProductList() {
         setDeleteStatus(response.status)
 
         if (response.status === 200) {
-
+            window.location.reload()
         }
     }
 
