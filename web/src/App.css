@@ -53,8 +53,9 @@
 
 .singleFilter {
     display: flex;
-    margin-bottom: 10px;
-    width: 600px;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 16px;
     align-items: baseline;
 }
 .singleFilter > * {

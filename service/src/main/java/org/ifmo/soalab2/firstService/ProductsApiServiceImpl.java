@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 @ApplicationScoped
 public class ProductsApiServiceImpl {
 
-    private final static String filterRegex = "^(id|name|coordinates\\\\.x|coordinates\\\\.y|creationDate|price|manufactureCost|unitOfMeasure|org_id|org_name|org_fullName|org_annualTurnover|org_type|postalAddress_zipcode)-(eq|nq|gt|lt|gte|lte)-(.*)";
+    private final static String filterRegex = "^(id|name|coordinates\\.x|coordinates\\.y|creationDate|price|manufactureCost|unitOfMeasure|org_id|org_name|org_fullName|org_annualTurnover|org_type|postalAddress_zipcode)-(eq|nq|gt|lt|gte|lte)-(.*)";
     private final static Pattern filterPattern = Pattern.compile(filterRegex);
 
 
@@ -84,7 +84,7 @@ public class ProductsApiServiceImpl {
                         }
                         break;
 
-                    case "coordinates\\.x":
+                    case "coordinates.x":
                         int coordinateX;
                         try {
                             coordinateX = Integer.parseInt(value);
@@ -96,7 +96,7 @@ public class ProductsApiServiceImpl {
                         }
                         break;
 
-                    case "coordinates\\.y":
+                    case "coordinates.y":
                         int coordinateY;
                         try {
                             coordinateY = Integer.parseInt(value);
@@ -217,10 +217,10 @@ public class ProductsApiServiceImpl {
     }
 
     private static class ProductCompositeComparator implements Comparator<Product> {
-        private final List<SortingParams> sortingParams;
+        private final List<SortingPair> sortingPairs;
 
-        public ProductCompositeComparator(List<SortingParams> sortingParams) {
-            this.sortingParams = sortingParams;
+        public ProductCompositeComparator(List<SortingPair> sortingParams) {
+            this.sortingPairs = sortingParams;
         }
 
         private int getComparable(SortingParams sortingParam, Product a, Product b) {
@@ -253,42 +253,17 @@ public class ProductsApiServiceImpl {
                     return a.getOrganization().getOrgType().compareTo(b.getOrganization().getOrgType());
                 case postalAddress_zipcode:
                     return a.getOrganization().getPostalAddress().getZipcode().compareTo(b.getOrganization().getPostalAddress().getZipcode());
-                case desc_product_id:
-                    return -a.getId().compareTo(b.getId());
-                case desc_name:
-                    return -a.getName().compareTo(b.getName());
-                case desc_coordinate_x:
-                    return -a.getCoordinates().getX().compareTo(b.getCoordinates().getX());
-                case desc_coordinate_y:
-                    return -a.getCoordinates().getY().compareTo(b.getCoordinates().getY());
-                case desc_creationDate:
-                    return -a.getCreationDate().compareTo(b.getCreationDate());
-                case desc_price:
-                    return -a.getPrice().compareTo(b.getPrice());
-                case desc_manufactureCost:
-                    return -a.getManufactureCost().compareTo(b.getManufactureCost());
-                case desc_unitOfMeasure:
-                    return -a.getUnitOfMeasure().compareTo(b.getUnitOfMeasure());
-                case desc_org_id:
-                    return -a.getOrganization().getOrgId().compareTo(b.getOrganization().getOrgId());
-                case desc_org_name:
-                    return -a.getOrganization().getName().compareTo(b.getOrganization().getName());
-                case desc_org_fullName:
-                    return -a.getOrganization().getFullName().compareTo(b.getOrganization().getFullName());
-                case desc_org_annualTurnover:
-                    return -a.getOrganization().getAnnualTurnover().compareTo(b.getOrganization().getAnnualTurnover());
-                case desc_org_type:
-                    return -a.getOrganization().getOrgType().compareTo(b.getOrganization().getOrgType());
-                case desc_postalAddress_zipcode:
-                    return -a.getOrganization().getPostalAddress().getZipcode().compareTo(b.getOrganization().getPostalAddress().getZipcode());
             }
             return 0;
         }
 
         @Override
         public int compare(Product o1, Product o2) {
-            for (SortingParams sortingParam : sortingParams) {
-                int comparison = getComparable(sortingParam, o1, o2);
+            for (SortingPair sortingPair : sortingPairs) {
+                int comparison = getComparable(sortingPair.getParam(), o1, o2);
+                if (sortingPair.getDirection() == SortingDirection.DESC) {
+                    comparison = -comparison;
+                }
                 if (comparison != 0) {
                     return comparison;
                 }
@@ -433,7 +408,7 @@ public class ProductsApiServiceImpl {
     }
 
     public Response getAllProducts(List<String> sort, List<String> filter, Integer pageIndex, Integer pageSize) throws NotFoundException {
-        List<SortingParams> sortingParams;
+        List<SortingPair> sortingParams;
         try {
             sortingParams = SortingParams.parseSortingParams(sort);
         } catch (IllegalArgumentException e) {

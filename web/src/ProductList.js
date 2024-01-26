@@ -51,20 +51,6 @@ const sortFields = [
     "org_annualTurnover",
     "org_type",
     "postalAddress_zipcode",
-    "desc_product_id",
-    "desc_name",
-    "desc_coordinate_x",
-    "desc_coordinate_y",
-    "desc_creationDate",
-    "desc_price",
-    "desc_manufactureCost",
-    "desc_unitOfMeasure",
-    "desc_org_id",
-    "desc_org_name",
-    "desc_org_fullName",
-    "desc_org_annualTurnover",
-    "desc_org_type",
-    "desc_postalAddress_zipcode"
 ]
 
 export async function productListLoader({request}) {
@@ -130,6 +116,18 @@ function parseFilterMap(currentFilters) {
     return filterMap;
 }
 
+function parseSortingMap(currentOperators) {
+    const sortingMap = new Map()
+    for (const filter of currentOperators) {
+        const [parameter, direction] = filter.split('-', 3)
+
+        // const isAsc = direction == null || direction.trim().toLowerCase() === 'asc'
+
+        sortingMap.set(parameter, direction)
+    }
+    return sortingMap;
+}
+
 const PAGE_SIZE_URL_PARAM = 'pageSize'
 const PAGE_INDEX_URL_PARAM = 'pageIndex'
 
@@ -145,6 +143,9 @@ export function ProductList() {
 
     const currentFilterMap = parseFilterMap(searchParams.getAll('filter'));
     const unselectedFilters = filterFields.filter(field => !currentFilterMap.has(field))
+
+    const currentSortingMap = parseSortingMap(searchParams.getAll('sort'))
+    const unselectedSortingParams = sortFields.filter(field => !currentSortingMap.has(field))
 
     async function deleteProduct(productId) {
         setIsLoading(true)
@@ -177,34 +178,14 @@ export function ProductList() {
         })
     }
 
-    function changeSort(nextSortOperator, desc) {
+    function updateSortingInUrl(sortingMap) {
         setSearchParams(prev => {
-            const currentSort = prev.getAll('sort')
-            //Вернёт массив
-            console.log(`Current sort is\n${currentSort}`)
-
-            //Первое что нужно сделать это найти повторения и удалить их
-            let next_sort = []
-            for (const sort of currentSort) {
-                const usual_sort = sort.replace("desc_", "")
-                const usual_next_sort = nextSortOperator.replace("desc_", "")
-                if (usual_sort !== usual_next_sort) {
-                    next_sort.push(sort)
-                }
-            }
-
-            if (desc !== null) {
-                if (desc) {
-                    next_sort.push(`desc_${nextSortOperator}`)
-                } else if (!desc) {
-                    next_sort.push(`${nextSortOperator}`)
-                }
-            }
-            console.log(next_sort)
-
             prev.delete('sort')
-            for (const sort of next_sort) {
-                prev.append('sort' ,sort)
+
+            for (const entry of sortingMap.entries()) {
+                const [param, direction] = entry;
+
+                prev.append('sort', `${param}-${direction}`)
             }
 
             return prev
@@ -225,11 +206,11 @@ export function ProductList() {
                                     filterValue: '',
                                 })
                                 updateFilterInUrl(nextFilterMap)
-                            }} />
+                            }}/>
                         ))}
                     </div>
                     <div>
-                        {Array.from(currentFilterMap).map(([filter, { operator, filterValue }]) => (
+                        {Array.from(currentFilterMap).map(([filter, {operator, filterValue}]) => (
                             <SingleFilterControlled
                                 key={filter}
                                 field={filter}
@@ -259,13 +240,34 @@ export function ProductList() {
                             />
                         ))}
                     </div>
+                    <div className="unselected-filters">
+                        <h3>Add sorting:</h3>
+                        {unselectedSortingParams.map(param => (
+                            <Chip key={param} label={param} onClick={() => {
+                                const nextSortingMap = new Map(currentSortingMap)
+                                nextSortingMap.set(param, 'asc')
+                                updateSortingInUrl(nextSortingMap)
+                            }}/>
+                        ))}
+                    </div>
                     <div>
-                        {sortFields.map((sortElement, index) => {
-                            if (index < sortFields.length / 2) {
-                                return (
-                                    <SingleSort sortElement={sortElement} changeFunc={changeSort}></SingleSort>
-                                )
-                            }
+                        {Array.from(currentSortingMap).map(([param, direction]) => {
+                            return (
+                                <SingleSort
+                                    param={param}
+                                    direction={direction}
+                                    changeFunc={(nextDirection) => {
+                                        const nextSortingMap = new Map(currentSortingMap)
+                                        nextSortingMap.set(param, nextDirection)
+                                        updateSortingInUrl(nextSortingMap)
+                                    }}
+                                    handleDelete={() => {
+                                        const nextSortingMap = new Map(currentSortingMap)
+                                        nextSortingMap.delete(param)
+                                        updateSortingInUrl(nextSortingMap)
+                                    }}
+                                />
+                            )
                         })}
                     </div>
                     <div>
@@ -428,37 +430,30 @@ function SingleFilterControlled({field, operator, handleOperatorChange, value, h
     );
 }
 
-function SingleSort({sortElement, changeFunc}) {
-
-    const [desc, setDesc] = useState(null);
-
-
-    const handleValueChange = (event) => {
-        setDesc(event.target.value);
-        changeFunc(sortElement, event.target.value)
-    };
-
-
-    const id = `operator-label-${sortElement}`
+function SingleSort({param, direction, changeFunc, handleDelete}) {
+    const id = `operator-label-${param}`
 
     return (
-        <div>
+        <div className="singleFilter">
+            <div>{param}</div>
+
             <FormControl fullWidth>
                 <InputLabel id={id}>Operator</InputLabel>
                 <Select
                     labelId={id}
                     id={id}
-                    value={desc}
-                    label={sortElement}
+                    value={direction}
+                    label={param}
                     size="small"
-                    onChange={handleValueChange}
+                    onChange={e => {
+                        changeFunc(e.target.value);
+                    }}
                 >
-                    <MenuItem value={null}>None</MenuItem>
-                    <MenuItem value={false}>Normal</MenuItem>
-                    <MenuItem value={true}>Desc</MenuItem>
+                    <MenuItem value={'asc'}>Ascending</MenuItem>
+                    <MenuItem value={'desc'}>Descending</MenuItem>
                 </Select>
             </FormControl>
-            <div>{sortElement}</div>
+            <Button variant="outlined" color="error" onClick={handleDelete}>Delete</Button>
 
         </div>
     )

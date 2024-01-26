@@ -20,33 +20,32 @@ public enum SortingParams {
     org_fullName,
     org_annualTurnover,
     org_type,
-    postalAddress_zipcode,
-    desc_product_id,
-    desc_name,
-    desc_coordinate_x,
-    desc_coordinate_y,
-    desc_creationDate,
-    desc_price,
-    desc_manufactureCost,
-    desc_unitOfMeasure,
-    desc_org_id,
-    desc_org_name,
-    desc_org_fullName,
-    desc_org_annualTurnover,
-    desc_org_type,
-    desc_postalAddress_zipcode;
+    postalAddress_zipcode;
 
     private static final Map<String, SortingParams> enumMap = Arrays.stream(SortingParams.values())
             .collect(Collectors.toMap(param -> param.name().toLowerCase(), Function.identity()));
 
 
-    public static List<SortingParams> parseSortingParams(List<String> sortingParams) {
+    public static List<SortingPair> parseSortingParams(List<String> sortingParams) {
         return sortingParams.stream().map(paramAsString -> {
-            SortingParams sortingParam = enumMap.get(paramAsString.toLowerCase());
+            String[] paramAndDirection = paramAsString.toLowerCase().split("-", 2);
+            String paramName = paramAndDirection[0];
+            if (paramName == null) {
+                throw new IllegalArgumentException("No sorting param : " + paramAsString);
+            }
+            SortingParams sortingParam = enumMap.get(paramName);
             if (sortingParam == null) {
                 throw new IllegalArgumentException("No such sorting param: " + paramAsString);
             }
-            return sortingParam;
+
+            String directionAsString = paramAndDirection[1];
+
+            SortingDirection direction = ("desc".equalsIgnoreCase(directionAsString))
+                    ? SortingDirection.DESC
+                    : SortingDirection.ASC;
+
+            return new SortingPair(direction, sortingParam);
+
         }).collect(Collectors.toList());
     }
 }
