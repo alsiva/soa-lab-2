@@ -83,11 +83,25 @@ export function SingleEditableProduct({product, callback, isLoading, buttonText}
                                 <Typography component={'span'} variant={'h5'} align="center">
                                     Organization <br/>
                                 </Typography>
+                                org_id -- <input value={productState.organization.orgId}
+                                               onChange={field => setProductState(prev => ({
+                                                   ...prev, organization: {
+                                                       ...prev.organization,
+                                                       orgId: field.target.value
+                                                   }
+                                               }))}/> <br/>
                                 Name -- <input value={productState.organization.name}
                                                onChange={field => setProductState(prev => ({
                                                    ...prev, organization: {
                                                        ...prev.organization,
                                                        name: field.target.value
+                                                   }
+                                               }))}/> <br/>
+                                FullName -- <input value={productState.organization.fullName}
+                                               onChange={field => setProductState(prev => ({
+                                                   ...prev, organization: {
+                                                       ...prev.organization,
+                                                       fullName: field.target.value
                                                    }
                                                }))}/> <br/>
                                 AnnualTurnover -- <input value={productState.organization.annualTurnover}

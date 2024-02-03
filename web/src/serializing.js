@@ -36,7 +36,7 @@ export function serializeProduct(product) {
     xmlProduct.appendChild(organization)
 
 
-    console.log(xmlProduct)
+
 
     return new XMLSerializer().serializeToString(xmlProduct)
 }
@@ -67,6 +67,8 @@ function serializeOrganization(xmlProduct, xmlDoc, organization) {
     xmlOrganization.appendChild(annualTurnover)
     xmlOrganization.appendChild(orgType)
     xmlOrganization.appendChild(postalAddress)
+
+
 
     return xmlOrganization
 }

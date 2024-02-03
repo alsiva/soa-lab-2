@@ -14,15 +14,20 @@ export function CreateProduct() {
     async function addProduct(nextProduct) {
         const serializedProduct = serializeProduct(nextProduct)
 
+        console.log("SERIALIZED PRODUCT")
+        console.log(serializedProduct)
+
+
         setIsLoading(true)
         await sleep(2000)
-        const response = await fetch(`${SERVICE_PREFIX}/api/products/${nextProduct.id}`, {
+        const response = await fetch(`${SERVICE_PREFIX}/api/products`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/xml'
             },
             body: serializedProduct
         })
+
 
         setIsLoading(false)
         setStatus(response.status)

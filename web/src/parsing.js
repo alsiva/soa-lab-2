@@ -1,5 +1,6 @@
 
 export function parseProducts(doc) {
+    console.log(doc)
     const xml = doc.querySelectorAll("product")
     const productArray = []
     for (const product of xml) {
@@ -10,6 +11,8 @@ export function parseProducts(doc) {
 
 export function parseProduct(product) {
     const organization = product.querySelector("organization")
+
+    console.log(parseOrganisation(organization))
 
     return {
         id: parseInt(product.querySelector("id").textContent),

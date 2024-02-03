@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 import {EBAY_PREFIX, SERVICE_PREFIX} from "./index";
+import { useRevalidator } from "react-router-dom";
 
 
 const filterFields = [
@@ -55,6 +56,7 @@ const sortFields = [
 
 export async function productListLoader({request}) {
     const browserUrl = new URL(request.url);
+
 
     const response = await fetch(`${SERVICE_PREFIX}/api/products?${browserUrl.searchParams.toString()}`)
     if (response.status !== 200) {
@@ -132,6 +134,7 @@ const PAGE_SIZE_URL_PARAM = 'pageSize'
 const PAGE_INDEX_URL_PARAM = 'pageIndex'
 
 export function ProductList() {
+    const revalidator = useRevalidator();
     const {isSuccess, products} = useLoaderData()
     const [showFilter, setShowFilter] = useState(false)
     const [searchParams, setSearchParams] = useSearchParams();
@@ -159,7 +162,7 @@ export function ProductList() {
         setDeleteStatus(response.status)
 
         if (response.status === 200) {
-            window.location.reload()
+            revalidator.revalidate();
         }
     }
 
@@ -275,7 +278,7 @@ export function ProductList() {
                         <input type="number" value={pageIndex} onChange={event => {
                             const nextPageIndex = Number(event.target.value.trim());
 
-                            if (Number.isNaN(nextPageIndex) || nextPageIndex <= 0) {
+                            if (Number.isNaN(nextPageIndex) || nextPageIndex < 0) {
                                 setSearchParams(prev => {
                                     prev.delete(PAGE_INDEX_URL_PARAM)
                                     return prev

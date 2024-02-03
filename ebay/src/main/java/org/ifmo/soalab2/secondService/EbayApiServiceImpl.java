@@ -68,7 +68,16 @@ public class EbayApiServiceImpl {
                 .request(MediaType.APPLICATION_XML)
                 .get();
 
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        int responseStatus = response.getStatus();
+
+        if (responseStatus == Response.Status.NOT_FOUND.getStatusCode()) {
+            // first service is not available
+            return Response
+                    .status(Response.Status.SERVICE_UNAVAILABLE)
+                    .build();
+        }
+
+        if (responseStatus != Response.Status.OK.getStatusCode()) {
             return Response
                     .status(Response.Status.BAD_REQUEST)
                     .build();
@@ -138,7 +147,16 @@ public class EbayApiServiceImpl {
                 .request(MediaType.APPLICATION_XML)
                 .get();
 
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        int responseStatus = response.getStatus();
+
+        if (responseStatus == Response.Status.NOT_FOUND.getStatusCode()) {
+            // first service is not available
+            return Response
+                    .status(Response.Status.SERVICE_UNAVAILABLE)
+                    .build();
+        }
+
+        if (responseStatus != Response.Status.OK.getStatusCode()) {
             return Response
                     .status(Response.Status.BAD_REQUEST)
                     .build();

@@ -4,3 +4,5 @@
 /node_modules
 /.idea
 /service/src/main/webapp
+localhost-self-signed.p12
+commands
