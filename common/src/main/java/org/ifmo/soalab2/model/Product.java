@@ -17,6 +17,8 @@ import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.ifmo.soalab2.DateAdapter;
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Size;
@@ -42,7 +44,7 @@ public class Product implements OneOfProductsItems, Serializable {
     @Embedded
     private ProductCoordinates coordinates;
 
-    //todo формат даты как в первой лабе
+    @XmlJavaTypeAdapter(DateAdapter.class)
     private Date creationDate;
     private Float price;
     private Long manufactureCost;
