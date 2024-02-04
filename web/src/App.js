@@ -10,12 +10,12 @@ export function App() {
 
     return (
         <div>
-            <Box sx={{width: '100%', margin: '0 16px'}}>
+            <Box sx={{width: '100%'}}>
                 <LinearProgress sx={{
                     opacity: (navigation.state === 'loading') ? 1 : 0,
                     transition: 'opacity 100ms',
                 }}/>
-                <Stack direction="row" spacing={2} sx={{margin: '16px 0'}}>
+                <Stack direction="row" spacing={2} sx={{margin: '16px 16px'}}>
                     <NavLink
                         to="service"
                         className={({isActive, isPending}) =>
@@ -48,13 +48,13 @@ export function Service() {
 
     return (
         <div>
-            <Box sx={{width: '100%', margin: '0 16px'}}>
+            <Box sx={{width: '100%'}}>
                 <LinearProgress sx={{
                     opacity: (navigation.state === 'loading') ? 1 : 0,
                     transition: 'opacity 100ms',
                 }}/>
 
-                <Stack direction="row" spacing={2} sx={{margin: '16px 0'}}>
+                <Stack direction="row" spacing={2} sx={{margin: '16px 16px'}}>
                     <Stack direction="column">
                         <NavLink
                             to="products"
