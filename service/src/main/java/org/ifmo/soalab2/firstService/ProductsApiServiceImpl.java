@@ -148,7 +148,7 @@ public class ProductsApiServiceImpl {
                     case "unitOfMeasure":
                         UnitOfMeasure unitOfMeasure;
                         try {
-                            unitOfMeasure = UnitOfMeasure.valueOf(value);
+                            unitOfMeasure = UnitOfMeasure.valueOf(value.toUpperCase());
                         } catch (IllegalArgumentException e) {
                             throw new IllegalFilterException(field, value);
                         }
@@ -196,7 +196,7 @@ public class ProductsApiServiceImpl {
                     case "org_type":
                         ProductOrganization.OrgTypeEnum orgType;
                         try {
-                            orgType = ProductOrganization.OrgTypeEnum.valueOf(value);
+                            orgType = ProductOrganization.OrgTypeEnum.valueOf(value.toUpperCase());
                         } catch (IllegalArgumentException e) {
                             throw new IllegalFilterException(field, value);
                         }
