@@ -369,7 +369,11 @@ function ProductTableView({products, deleteProduct}) {
                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                         >
                             <TableCell>{product.id}</TableCell>
-                            <TableCell>
+                            <TableCell sx={{
+                                maxWidth: 300,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}>
                                 <Link to={`/web/service/products/${product.id}`}>{product.name}</Link>
                             </TableCell>
                             <TableCell>({product.coordinates.x}, {product.coordinates.y})</TableCell>
