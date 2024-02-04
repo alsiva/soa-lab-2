@@ -13,12 +13,12 @@ import {UpdateProduct, productLoader} from "./UpdateProduct";
 import {
     ProductList,
     productListLoader,
-    productListWithPriceRangeLoader,
-    productListWithUnitOfMeasureLoader
 } from "./ProductList";
 import {CreateProduct} from "./CreateProduct";
 import {ProductWithMaxUnitOfMeasure, productWithMaxUnitOfMeasureLoader} from "./ProductWithMaxUnitOfMeasure";
 import {ProductListWithLessAnnualTurnover, productListWithLessAnnualTurnoverLoader} from "./ProductListWithLessAnnualTurnover";
+import {EbayUnitOfMeasure, productListWithUnitOfMeasureLoader} from "./EbayUnitOfMeasure";
+import {EbayRange, productListWithPriceRangeLoader} from "./EbayRange";
 
 export const SERVICE_PREFIX = `/service`
 export const EBAY_PREFIX = `/ebay`
@@ -65,14 +65,14 @@ const router = createBrowserRouter([
                 element: <Ebay/>,
                 children: [
                     {
-                        path: "filter/price/:minPrice/:maxPrice",
+                        path: "price",
                         loader: productListWithPriceRangeLoader,
-                        element: <ProductList/>
+                        element: <EbayRange/>
                     },
                     {
-                        path: "filter/unit-of-measure/:unitOfMeasure",
+                        path: "unit-of-measure",
                         loader: productListWithUnitOfMeasureLoader,
-                        element: <ProductList />
+                        element: <EbayUnitOfMeasure />
                     }
                 ]
             },

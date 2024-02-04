@@ -17,8 +17,9 @@ import {
     TextField
 } from "@mui/material";
 import React, {useState} from "react";
-import {EBAY_PREFIX, SERVICE_PREFIX} from "./index";
+import {SERVICE_PREFIX} from "./index";
 import { useRevalidator } from "react-router-dom";
+import {deleteProductInApi} from "./utils";
 
 
 const filterFields = [
@@ -72,39 +73,6 @@ export async function productListLoader({request}) {
 
 }
 
-export async function productListWithPriceRangeLoader({request}) {
-    const browserUrl = new URL(request.url);
-    const min = browserUrl.toString().split('/').slice(-2)[0]
-    const max = browserUrl.toString().split('/').slice(-2)[1]
-
-    const response = await fetch(`${EBAY_PREFIX}/api/filter/price/${min}/${max}`)
-    if (response.status !== 200) {
-        return {isSuccess: false}
-    }
-
-    const text = await response.text()
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "application/xml");
-    const productArray = parseProducts(doc);
-
-    return {isSuccess: true, products: productArray}
-}
-
-export async function productListWithUnitOfMeasureLoader({request}) {
-    const response = await fetch(`${EBAY_PREFIX}/api/filter/unit-of-measure/METERS`)
-    if (response.status !== 200) {
-        return {isSuccess: false}
-    }
-
-    const text = await response.text()
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "application/xml");
-    const productArray = parseProducts(doc);
-
-    return {isSuccess: true, products: productArray}
-}
-
-
 function parseFilterMap(currentFilters) {
     const filterMap = new Map()
     for (const filter of currentFilters) {
@@ -152,12 +120,7 @@ export function ProductList() {
 
     async function deleteProduct(productId) {
         setIsLoading(true)
-        const response = await fetch(`${SERVICE_PREFIX}/api/products/${productId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/xml'
-            },
-        })
+        const response = await deleteProductInApi(productId)
         setIsLoading(false)
         setDeleteStatus(response.status)
 
@@ -339,13 +302,12 @@ export function ProductList() {
     )
 }
 
-function ProductTableView({products, deleteProduct}) {
+export function ProductTableView({products, deleteProduct}) {
     if (products.length === 0) {
         return (
             <h2>Поиск не выдал подходящих продуктов. Попробуйте ослабить фильтрацию.</h2>
         )
     }
-
 
     return (
         <TableContainer>
@@ -359,7 +321,9 @@ function ProductTableView({products, deleteProduct}) {
                         <TableCell>ManufactureCost</TableCell>
                         <TableCell>UnitOfMeasure</TableCell>
                         <TableCell>Organization</TableCell>
-                        <TableCell>DeleteRow</TableCell>
+                        {deleteProduct && (
+                            <TableCell>Delete</TableCell>
+                        )}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -381,11 +345,13 @@ function ProductTableView({products, deleteProduct}) {
                             <TableCell>{product.manufactureCost}</TableCell>
                             <TableCell>{product.unitOfMeasure}</TableCell>
                             <TableCell>{product.organization.name}</TableCell>
-                            <TableCell>
-                                <Button variant="outlined" color="error" onClick={() => deleteProduct(product.id)}>
-                                    Удалить продукт
-                                </Button>
-                            </TableCell>
+                            {deleteProduct && (
+                                <TableCell>
+                                    <Button variant="outlined" color="error" onClick={() => deleteProduct(product.id)}>
+                                        Удалить продукт
+                                    </Button>
+                                </TableCell>
+                            )}
                         </TableRow>
                     )}
                 </TableBody>
